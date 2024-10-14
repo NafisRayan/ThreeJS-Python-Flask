@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object Detection</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #fff;
+        }
+
+        .card {
+            background-color: #2b2b2b;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            background-color: #4b5563;
+            color: #fff;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex justify-center items-center h-screen">
+        <div class="card w-[800px] p-8">
+            <h1 class="text-2xl font-bold mb-4">Night City Object Detection</h1>
+            <div class="w-full h-[450px] relative">
+                <img id="video-feed" src="{{ url_for('video_feed') }}" alt="Video Feed" class="w-full h-full object-contain">
+            </div>
+            <div class="flex justify-between items-center mt-4">
+                <div>
+                    <label for="model-select" class="mr-2">Model:</label>
+                    <select id="model-select" class="bg-gray-700 text-white px-2 py-1 rounded-md">
+                        <option value="yolov8n.pt">YOLOv8n</option>
+                        <option value="yolov8s.pt">YOLOv8s</option>
+                        <option value="yolov8m.pt">YOLOv8m</option>
+                        <option value="yolov8l.pt">YOLOv8l</option>
+                        <option value="yolov8x.pt">YOLOv8x</option>
+                    </select>
+                </div>
+                <button class="btn px-4 py-2 rounded-md" onclick="changeModel()">Change Model</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function changeModel() {
+            const modelSelect = document.getElementById('model-select');
+            const selectedModel = modelSelect.value;
+            window.location.href = `/video_feed?model=${selectedModel}`;
+        }
+    </script>
+</body>
+</html>

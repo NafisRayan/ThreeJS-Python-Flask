@@ -3,59 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Object Detection</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #1a1a1a;
-            color: #fff;
-        }
-
-        .card {
-            background-color: #2b2b2b;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn {
-            background-color: #4b5563;
-            color: #fff;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn:hover {
-            background-color: #6b7280;
-        }
-    </style>
+    <title>Transparent THREE.js with Camera Background</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="flex justify-center items-center h-screen">
-        <div class="card w-[800px] p-8">
-            <h1 class="text-2xl font-bold mb-4">Night City Object Detection</h1>
-            <div class="w-full h-[450px] relative">
-                <img id="video-feed" src="{{ url_for('video_feed') }}" alt="Video Feed" class="w-full h-full object-contain">
-            </div>
-            <div class="flex justify-between items-center mt-4">
-                <div>
-                    <label for="model-select" class="mr-2">Model:</label>
-                    <select id="model-select" class="bg-gray-700 text-white px-2 py-1 rounded-md">
-                        <option value="yolov8n.pt">YOLOv8n</option>
-                        <option value="yolov8s.pt">YOLOv8s</option>
-                        <option value="yolov8m.pt">YOLOv8m</option>
-                        <option value="yolov8l.pt">YOLOv8l</option>
-                        <option value="yolov8x.pt">YOLOv8x</option>
-                    </select>
-                </div>
-                <button class="btn px-4 py-2 rounded-md" onclick="changeModel()">Change Model</button>
-            </div>
-        </div>
+<body class="m-0 p-0 overflow-hidden">
+    <div class="fixed top-0 left-0 w-full h-full z-[-1]">
+        <img id="video-background" class="min-w-full min-h-full w-auto h-auto object-cover" src="{{ url_for('video_feed') }}" alt="Video Feed" />
     </div>
+    <div id="threejs-container" class="fixed top-0 left-0 w-full h-full"></div>
 
-    <script>
-        function changeModel() {
-            const modelSelect = document.getElementById('model-select');
-            const selectedModel = modelSelect.value;
-            window.location.href = `/video_feed?model=${selectedModel}`;
+    <script type="module">
+        import * as THREE from "https://cdn.skypack.dev/three@0.129.0/build/three.module.js";
+        import { OrbitControls } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/controls/OrbitControls.js";
+        import { GLTFLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js";
+        import { VRButton } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/webxr/VRButton.js";
+        import { XRHandModelFactory } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/webxr/XRHandModelFactory.js";
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 3, 12);
+
+        const renderer = new THREE.WebGLRenderer({ 
+            alpha: true,
+            antialias: true
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000, 0); // Transparent background
+        document.getElementById('threejs-container').appendChild(renderer.domElement);
+        document.body.appendChild(VRButton.createButton(renderer));
+        renderer.xr.enabled = true;
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+
+        const modelsFolders = [
+          { folder: 'curiosity_rover', scale: [2.5, 2.5, 2.5], position: [-2, -4, -25], rotation: [0, 0, 0], animation: true },
+          { folder: 'astronaut', scale: [2, 2, 2], position: [-12, -4.5, 2], rotation: [0, -250.8, 0], animation: true },
+          { folder: 'perseverance_mars_rover', scale: [2, 2, 2], position: [-18, -3, -12], rotation: [0, 0, 0], animation: false },
+          { folder: 'mariner_4_spacecraft', scale: [1, 1, 1], position: [8, 18, -40], rotation: [0, Math.PI, 0], animation: false },
+          { folder: 'space_shuttle', scale: [.9,.9,.9], position: [-50,-1, -120], rotation: [0, -200, 0], animation: false },
+          { folder: 'robot_from_the_series_love_death_and_robots', scale: [.3, .3, .3], position: [8, 0.-2 , 5], rotation: [0, 10.2, 0], animation: false },
+          // { folder: 'planet', scale: [1, 1, 1], position: [-5, 18, -50], rotation: [0, Math.PI, 0], animation: false },
+          { folder: 'solar_skid', scale: [.03,.03,.04], position: [13, -2.3, -11], rotation: [0, -269.3, 0], animation: false },
+          { folder: 'solar_skid', scale: [.03,.03,.04], position: [12, -2.3, -19], rotation: [0, -269.3, 0], animation: false },
+          { folder: 'solar_skid', scale: [.03,.03,.04], position: [11, -2.3, -28], rotation: [0, -269.3, 0], animation: false },
+          { folder: 'solar_skid', scale: [.03,.03,.04], position: [10, -2.3, -37], rotation: [0, -269.3, 0], animation: false },
+          { folder: 'sci_fi_enclosure', scale: [1.6, 1.6, 1.6], position: [40, -2.3, -47], rotation: [0, 0, 0], animation: false }
+        ];
+
+        let models = [];
+        const loader = new GLTFLoader();
+
+        modelsFolders.forEach((modelData) => {
+            loader.load(
+                `models/${modelData.folder}/scene.gltf`,
+                (gltf) => {
+                    const model = gltf.scene;
+                    model.scale.set(...modelData.scale);
+                    model.position.set(...modelData.position);
+                    scene.add(model);
+                    models.push(model);
+                },
+                undefined,
+                (error) => console.error(`Error loading model: ${error}`)
+            );
+        });
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        const video = document.getElementById('video-background');
+        video.style.pointerEvents = "none"; // Allow interaction with Three.js
+
+        function animate() {
+            renderer.setAnimationLoop(() => {
+                controls.update();
+                models.forEach((model) => {
+                    if (model && model.mixer) {
+                        model.mixer.update(0.016);
+                    }
+                });
+                renderer.render(scene, camera);
+            });
         }
+
+        animate();
     </script>
 </body>
 </html>
