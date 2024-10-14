@@ -10,7 +10,6 @@ This project combines Three.js, Python, and Flask to create an interactive 3D we
 - [Setup Instructions](#setup-instructions)
 - [Usage](#usage)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## Project Overview
 
