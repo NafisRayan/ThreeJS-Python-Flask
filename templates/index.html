@@ -163,8 +163,18 @@
         line3.position.set(0, -3, 0);
         scene.add(line3);
 
+
+        // Get current date and time
+        const now = new Date();
+// const formattedDateTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')} | ${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} | Weather: Sunny, 29°C`;
+
+const formattedDateTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} | ${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} | Weather: Sunny, 29°C`;
+
+
+
+
         // Create the status bar plane
-        const statusBarGeometry = new THREE.PlaneGeometry(20, 2);
+        const statusBarGeometry = new THREE.PlaneGeometry(30, 2);
         const statusBarMaterial = new THREE.MeshBasicMaterial({ color: 0x333333 });
         const statusBar = new THREE.Mesh(statusBarGeometry, statusBarMaterial);
         statusBar.position.set(0, -9, 0);
@@ -199,11 +209,12 @@
 
 
 
+
 // Load the font
 const fontLoader = new THREE.FontLoader();
 fontLoader.load('fonts/helvetiker_bold.typeface.json', (font) => {
     // Create the text
-    const textGeometry = new THREE.TextGeometry("Time: 12:34:56 | Date: 2023-05-15 | Weather: Sunny, 29°C", {
+    const textGeometry = new THREE.TextGeometry(`${formattedDateTime}`, {
         font: font,
         size: 1,
         height: 0.2,
@@ -215,7 +226,7 @@ fontLoader.load('fonts/helvetiker_bold.typeface.json', (font) => {
     const textMesh = new THREE.Mesh(textGeometry, textMaterial);
 
     // Position the text mesh
-    textMesh.position.set(-9, -9.5, 0.1);
+    textMesh.position.set(-14, -9.5, 0.1);
 
     // Add the text mesh to the scene
     scene.add(textMesh);

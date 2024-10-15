@@ -364,29 +364,111 @@ fontLoader.load('fonts/helvetiker_bold.typeface.json', (font) => {
             model = loadedModel;
         });
 
-        // Perform object detection
+
+        
         async function detectObjects() {
             if (!model) return requestAnimationFrame(detectObjects);
-
+        
             // Detect objects in the video stream
             const predictions = await model.detect(video);
-
+        
             // Clear the canvas and draw the video frame
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
+        
             // Draw bounding boxes and labels for detected objects
             predictions.forEach(prediction => {
                 const [x, y, width, height] = prediction.bbox;
+                const centerX = x + width / 2;
+                const centerY = y + height / 2;
+        
+                // Calculate text position
+                const textX = Math.max(0, centerX - 50); // Adjust the offset as needed
+                const textY = Math.min(canvas.height, centerY - 50); // Ensure text doesn't go off-screen
+        
+                // Draw bounding box
                 ctx.strokeStyle = '#00FFFF';
                 ctx.lineWidth = 4;
                 ctx.strokeRect(x, y, width, height);
-
+        
+                // Draw circle at object center
+                ctx.fillStyle = '#000000';
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, 4, 0, 2 * Math.PI);
+                ctx.fill();
+        
+                // Draw line from object center to text center
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(textX, textY);
+                ctx.strokeStyle = '#000000';
+                ctx.stroke();
+        
+                // Draw rectangle behind text
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(textX - 10, textY - 20, 100, 40);
+        
+                // Draw text
                 ctx.fillStyle = '#00FFFF';
                 ctx.font = '18px Arial';
-                ctx.fillText(prediction.class, x, y > 10 ? y - 5 : 10);
+                ctx.fillText(prediction.class, textX, textY);
+        
+                // Draw secondary rectangle around text
+                ctx.strokeStyle = '#001E3C'; // Dark blue
+                ctx.lineWidth = 2;
+                ctx.strokeRect(textX - 12, textY - 22, 104, 44);
             });
+        
+            // Draw three horizontal lines in the center
+            const canvasHeight = canvas.height;
+            const canvasWidth = canvas.width;
+            const centerY = canvasHeight / 2;
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(canvasWidth / 4, centerY - 20);
+            ctx.lineTo(canvasWidth * 3 / 4, centerY - 20);
+            ctx.stroke();
+        
+            ctx.beginPath();
+            ctx.moveTo(canvasWidth / 3, centerY);
+            ctx.lineTo(canvasWidth * 2 / 3, centerY);
+            ctx.stroke();
+        
+            ctx.beginPath();
+            ctx.moveTo(canvasWidth / 4, centerY + 20);
+            ctx.lineTo(canvasWidth * 3 / 4, centerY + 20);
+            ctx.stroke();
+        
+            // Draw status bar with curved underline
+    const currentTime = new Date();
+    const timeStr = currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const dateStr = currentTime.toISOString().split('T')[0];
+    const statusBarText = `Time: ${timeStr} | Date: ${dateStr} | Weather: Sunny, 29°C`;
 
-            requestAnimationFrame(detectObjects);
+    ctx.font = '16px Arial';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.textAlign = 'center';
+
+    // Calculate text position
+    const textWidth = ctx.measureText(statusBarText).width;
+    const textX = canvas.width / 2;
+    const textY = 25;
+
+    // Draw curved underline
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, 40, 30, 0, Math.PI); // Adjust radius as needed
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Draw status bar text
+    ctx.fillText(statusBarText, textX, textY);
+
+    // Fill area under the curved underline
+    ctx.fillStyle = '#333333'; // Dark gray background
+    ctx.fillRect(0, 35, canvas.width, 10); // Adjust height as needed
+
+    requestAnimationFrame(detectObjects);
         }
 
         animate(); // Start the animation loop
