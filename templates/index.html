@@ -53,18 +53,18 @@
 
         // GLTF model folders
         const modelsFolders = [
-          { folder: 'curiosity_rover', scale: [2.5, 2.5, 2.5], position: [-2, -4, -25], rotation: [0, 0, 0], animation: true },
-          { folder: 'astronaut', scale: [2, 2, 2], position: [-12, -4.5, 2], rotation: [0, -250.8, 0], animation: true },
-          { folder: 'perseverance_mars_rover', scale: [2, 2, 2], position: [-18, -3, -12], rotation: [0, 0, 0], animation: false },
+          // { folder: 'curiosity_rover', scale: [2.5, 2.5, 2.5], position: [-2, -4, -25], rotation: [0, 0, 0], animation: true },
+          // { folder: 'astronaut', scale: [2, 2, 2], position: [-12, -4.5, 2], rotation: [0, -250.8, 0], animation: true },
+          // { folder: 'perseverance_mars_rover', scale: [2, 2, 2], position: [-18, -3, -12], rotation: [0, 0, 0], animation: false },
           { folder: 'mariner_4_spacecraft', scale: [1, 1, 1], position: [8, 18, -40], rotation: [0, Math.PI, 0], animation: false },
-          { folder: 'space_shuttle', scale: [.9,.9,.9], position: [-50,-1, -120], rotation: [0, -200, 0], animation: false },
-          { folder: 'robot_from_the_series_love_death_and_robots', scale: [.3, .3, .3], position: [8, 0.-2 , 5], rotation: [0, 10.2, 0], animation: false },
-          // { folder: 'planet', scale: [1, 1, 1], position: [-5, 18, -50], rotation: [0, Math.PI, 0], animation: false },
-          { folder: 'solar_skid', scale: [.03,.03,.04], position: [13, -2.3, -11], rotation: [0, -269.3, 0], animation: false },
-          { folder: 'solar_skid', scale: [.03,.03,.04], position: [12, -2.3, -19], rotation: [0, -269.3, 0], animation: false },
-          { folder: 'solar_skid', scale: [.03,.03,.04], position: [11, -2.3, -28], rotation: [0, -269.3, 0], animation: false },
-          { folder: 'solar_skid', scale: [.03,.03,.04], position: [10, -2.3, -37], rotation: [0, -269.3, 0], animation: false },
-          { folder: 'sci_fi_enclosure', scale: [1.6, 1.6, 1.6], position: [40, -2.3, -47], rotation: [0, 0, 0], animation: false }
+          // { folder: 'space_shuttle', scale: [.9,.9,.9], position: [-50,-1, -120], rotation: [0, -200, 0], animation: false },
+          // { folder: 'robot_from_the_series_love_death_and_robots', scale: [.3, .3, .3], position: [8, 0.-2 , 5], rotation: [0, 10.2, 0], animation: false },
+          // // { folder: 'planet', scale: [1, 1, 1], position: [-5, 18, -50], rotation: [0, Math.PI, 0], animation: false },
+          // { folder: 'solar_skid', scale: [.03,.03,.04], position: [13, -2.3, -11], rotation: [0, -269.3, 0], animation: false },
+          // { folder: 'solar_skid', scale: [.03,.03,.04], position: [12, -2.3, -19], rotation: [0, -269.3, 0], animation: false },
+          // { folder: 'solar_skid', scale: [.03,.03,.04], position: [11, -2.3, -28], rotation: [0, -269.3, 0], animation: false },
+          // { folder: 'solar_skid', scale: [.03,.03,.04], position: [10, -2.3, -37], rotation: [0, -269.3, 0], animation: false },
+          // { folder: 'sci_fi_enclosure', scale: [1.6, 1.6, 1.6], position: [40, -2.3, -47], rotation: [0, 0, 0], animation: false }
         ];
 
         let models = []; // Array to store loaded models
@@ -76,7 +76,7 @@
             `models/${modelData.folder}/scene.gltf`,
             (gltf) => {
               const model = gltf.scene;
-              model.rotation.set(...(modelData.rotation || [0, 0, 0]));  // Default rotation if none provided
+              model.rotation.set(...(modelData.rotation || [0, 0, 0]));
               if (modelData.animation) {
                 model.mixer = new THREE.AnimationMixer(model);
                 model.mixer.clipAction(gltf.animations[0]).play();
@@ -143,6 +143,54 @@
 
         // Usage example
         // loadAndAnimateModel('mars_surface_terrain_model', [50, 50, 50], [270,85,-500], [-.04, Math.PI, 0], false);
+
+
+        // Create the centered horizontal lines
+        const lineGeometry = new THREE.PlaneGeometry(16, 0.2);
+        const lineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+        const line1 = new THREE.Mesh(lineGeometry, lineMaterial);
+        line1.position.set(0, 3, 0);
+        scene.add(line1);
+
+        const line2 = new THREE.Mesh(lineGeometry, lineMaterial);
+        line2.position.set(0, 0, 0);
+        scene.add(line2);
+
+        const line3 = new THREE.Mesh(lineGeometry, lineMaterial);
+        line3.position.set(0, -3, 0);
+        scene.add(line3);
+
+        // Create the status bar plane
+        const statusBarGeometry = new THREE.PlaneGeometry(20, 2);
+        const statusBarMaterial = new THREE.MeshBasicMaterial({ color: 0x333333 });
+        const statusBar = new THREE.Mesh(statusBarGeometry, statusBarMaterial);
+        statusBar.position.set(0, -9, 0);
+        scene.add(statusBar);
+
+        // Create the curved underline
+        const underlineGeometry = new THREE.TorusGeometry(10, 0.5, 16, 100);
+        const underlineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const underline = new THREE.Mesh(underlineGeometry, underlineMaterial);
+        underline.position.set(0, -10, 0);
+        underline.rotation.x = -Math.PI / 2;
+        scene.add(underline);
+
+        // Add text to the status bar (example)
+        const statusBarText = new THREE.TextGeometry("Time: 12:34:56 | Date: 2023-05-15 | Weather: Sunny, 29°C", {
+          font: 'Arial',
+          size: 1,
+          height: 0.2,
+          curveSegments: 12,
+          bevelEnabled: false,
+        });
+        const statusBarTextMesh = new THREE.Mesh(statusBarText, new THREE.MeshBasicMaterial({ color: 0xffffff }));
+        statusBarTextMesh.position.set(-9, -9.5, 0.1);
+        scene.add(statusBarTextMesh);
+
+
+
+
 
         // Add ambient lighting to the scene
         const ambientLight = new THREE.AmbientLight(0xffffff, 1);
@@ -248,18 +296,6 @@
 
         const video = document.getElementById('video-background');
         video.style.pointerEvents = "none"; // Allow interaction with Three.js
-
-        // function animate() {
-        //     renderer.setAnimationLoop(() => {
-        //         controls.update();
-        //         models.forEach((model) => {
-        //             if (model && model.mixer) {
-        //                 model.mixer.update(0.016);
-        //             }
-        //         });
-        //         renderer.render(scene, camera);
-        //     });
-        // }
 
         animate(); // Start the animation loop
     </script>
