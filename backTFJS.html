@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transparent THREE.js with Camera Background</title>
+    <title>Transparent THREE.js with TensorFlow Object Detection Background</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/loaders/FontLoader.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
 </head>
 <body class="m-0 p-0 overflow-hidden">
     <div class="fixed top-0 left-0 w-full h-full z-[-1]">
-        <img id="video-background" class="min-w-full min-h-full w-auto h-auto object-cover" src="{{ url_for('video_feed') }}" alt="Video Feed" />
+        <video id="video-background" class="hidden" autoplay muted playsinline></video>
+        <canvas id="detection-canvas" class="min-w-full min-h-full w-auto h-auto object-cover"></canvas>
     </div>
     <div id="threejs-container" class="fixed top-0 left-0 w-full h-full"></div>
 
@@ -55,18 +56,18 @@
 
         // GLTF model folders
         const modelsFolders = [
-          // { folder: 'curiosity_rover', scale: [2.5, 2.5, 2.5], position: [-2, -4, -25], rotation: [0, 0, 0], animation: true },
-          // { folder: 'astronaut', scale: [2, 2, 2], position: [-12, -4.5, 2], rotation: [0, -250.8, 0], animation: true },
-          // { folder: 'perseverance_mars_rover', scale: [2, 2, 2], position: [-18, -3, -12], rotation: [0, 0, 0], animation: false },
+          { folder: 'curiosity_rover', scale: [2.5, 2.5, 2.5], position: [-2, -4, -25], rotation: [0, 0, 0], animation: true },
+          { folder: 'astronaut', scale: [2, 2, 2], position: [-12, -4.5, 2], rotation: [0, -250.8, 0], animation: true },
+          { folder: 'perseverance_mars_rover', scale: [2, 2, 2], position: [-18, -3, -12], rotation: [0, 0, 0], animation: false },
           { folder: 'mariner_4_spacecraft', scale: [1, 1, 1], position: [8, 18, -40], rotation: [0, Math.PI, 0], animation: false },
-          // { folder: 'space_shuttle', scale: [.9,.9,.9], position: [-50,-1, -120], rotation: [0, -200, 0], animation: false },
-          // { folder: 'robot_from_the_series_love_death_and_robots', scale: [.3, .3, .3], position: [8, 0.-2 , 5], rotation: [0, 10.2, 0], animation: false },
-          // // { folder: 'planet', scale: [1, 1, 1], position: [-5, 18, -50], rotation: [0, Math.PI, 0], animation: false },
-          // { folder: 'solar_skid', scale: [.03,.03,.04], position: [13, -2.3, -11], rotation: [0, -269.3, 0], animation: false },
-          // { folder: 'solar_skid', scale: [.03,.03,.04], position: [12, -2.3, -19], rotation: [0, -269.3, 0], animation: false },
-          // { folder: 'solar_skid', scale: [.03,.03,.04], position: [11, -2.3, -28], rotation: [0, -269.3, 0], animation: false },
-          // { folder: 'solar_skid', scale: [.03,.03,.04], position: [10, -2.3, -37], rotation: [0, -269.3, 0], animation: false },
-          // { folder: 'sci_fi_enclosure', scale: [1.6, 1.6, 1.6], position: [40, -2.3, -47], rotation: [0, 0, 0], animation: false }
+          { folder: 'space_shuttle', scale: [.9,.9,.9], position: [-50,-1, -120], rotation: [0, -200, 0], animation: false },
+          { folder: 'robot_from_the_series_love_death_and_robots', scale: [.3, .3, .3], position: [8, 0.-2 , 5], rotation: [0, 10.2, 0], animation: false },
+          // { folder: 'planet', scale: [1, 1, 1], position: [-5, 18, -50], rotation: [0, Math.PI, 0], animation: false },
+          { folder: 'solar_skid', scale: [.03,.03,.04], position: [13, -2.3, -11], rotation: [0, -269.3, 0], animation: false },
+          { folder: 'solar_skid', scale: [.03,.03,.04], position: [12, -2.3, -19], rotation: [0, -269.3, 0], animation: false },
+          { folder: 'solar_skid', scale: [.03,.03,.04], position: [11, -2.3, -28], rotation: [0, -269.3, 0], animation: false },
+          { folder: 'solar_skid', scale: [.03,.03,.04], position: [10, -2.3, -37], rotation: [0, -269.3, 0], animation: false },
+          { folder: 'sci_fi_enclosure', scale: [1.6, 1.6, 1.6], position: [40, -2.3, -47], rotation: [0, 0, 0], animation: false }
         ];
 
         let models = []; // Array to store loaded models
@@ -78,7 +79,7 @@
             `models/${modelData.folder}/scene.gltf`,
             (gltf) => {
               const model = gltf.scene;
-              model.rotation.set(...(modelData.rotation || [0, 0, 0]));
+              model.rotation.set(...(modelData.rotation || [0, 0, 0]));  // Default rotation if none provided
               if (modelData.animation) {
                 model.mixer = new THREE.AnimationMixer(model);
                 model.mixer.clipAction(gltf.animations[0]).play();
@@ -144,11 +145,15 @@
         }
 
         // Usage example
-        // loadAndAnimateModel('mars_surface_terrain_model', [50, 50, 50], [270,85,-500], [-.04, Math.PI, 0], false);
+        //loadAndAnimateModel('mars_surface_terrain_model', [50, 50, 50], [270,85,-500], [-.04, Math.PI, 0], false);
 
 
-        // Create the centered horizontal lines
-        const lineGeometry = new THREE.PlaneGeometry(16, 0.2);
+
+
+
+
+// Create the centered horizontal lines
+const lineGeometry = new THREE.PlaneGeometry(16, 0.2);
         const lineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
         const line1 = new THREE.Mesh(lineGeometry, lineMaterial);
@@ -220,6 +225,8 @@ fontLoader.load('fonts/helvetiker_bold.typeface.json', (font) => {
     // Add the text mesh to the scene
     scene.add(textMesh);
 });
+
+
 
 
 
@@ -331,8 +338,56 @@ fontLoader.load('fonts/helvetiker_bold.typeface.json', (font) => {
         // Initialize XR Hand Controls
         initXRHandControls();
 
+        // TensorFlow.js object detection setup
         const video = document.getElementById('video-background');
-        video.style.pointerEvents = "none"; // Allow interaction with Three.js
+        const canvas = document.getElementById('detection-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Request access to the user's camera
+        navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } })
+        .then((stream) => {
+            video.srcObject = stream;
+            video.play();
+            video.onloadedmetadata = () => {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                detectObjects();
+            };
+        })
+        .catch((error) => {
+            console.error("Error accessing the camera:", error);
+        });
+
+        // Load the COCO-SSD model
+        let model;
+        cocoSsd.load().then((loadedModel) => {
+            model = loadedModel;
+        });
+
+        // Perform object detection
+        async function detectObjects() {
+            if (!model) return requestAnimationFrame(detectObjects);
+
+            // Detect objects in the video stream
+            const predictions = await model.detect(video);
+
+            // Clear the canvas and draw the video frame
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Draw bounding boxes and labels for detected objects
+            predictions.forEach(prediction => {
+                const [x, y, width, height] = prediction.bbox;
+                ctx.strokeStyle = '#00FFFF';
+                ctx.lineWidth = 4;
+                ctx.strokeRect(x, y, width, height);
+
+                ctx.fillStyle = '#00FFFF';
+                ctx.font = '18px Arial';
+                ctx.fillText(prediction.class, x, y > 10 ? y - 5 : 10);
+            });
+
+            requestAnimationFrame(detectObjects);
+        }
 
         animate(); // Start the animation loop
     </script>

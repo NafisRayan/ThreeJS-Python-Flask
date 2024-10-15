@@ -129,5 +129,9 @@ def video_feed():
 def serve_gltf(path):
     return send_file(os.path.join('models', path), mimetype='model/gltf')
 
+@app.route('/fonts/<path:path>')
+def serve_font(path):
+    return send_file(os.path.join('fonts', path), mimetype='application/font-ttf')
+
 if __name__ == '__main__':
     app.run(debug=True)
