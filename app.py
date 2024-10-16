@@ -57,6 +57,12 @@ def gen_frames():
         
         # Draw the status bar text
         cv2.putText(frame, status_bar, ((image_width - text_size[0]) // 2, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+
+        # # Draw three horizontal lines in the center
+        # line_y = frame.shape[0] // 2  # Y-coordinate for the center of the image
+        # cv2.line(frame, (frame.shape[1]//4, line_y - 20), (frame.shape[1]*3//4, line_y - 20), (255, 255, 255), 1)
+        # cv2.line(frame, (frame.shape[1]//3, line_y), (frame.shape[1]*2//3, line_y), (255, 255, 255), 1)
+        # cv2.line(frame, (frame.shape[1]//4, line_y + 20), (frame.shape[1]*3//4, line_y + 20), (255, 255, 255), 1)
         
         # Process the frame with YOLO
         results = model(frame)
@@ -102,11 +108,7 @@ def gen_frames():
 
                 frame = cv2.addWeighted(overlay, Opacity, frame, 1 - Opacity, 0)  # overlaying on the image.
 
-                # Draw three horizontal lines in the center
-                line_y = frame.shape[0] // 2  # Y-coordinate for the center of the image
-                cv2.line(frame, (frame.shape[1]//4, line_y - 20), (frame.shape[1]*3//4, line_y - 20), (255, 255, 255), 1)
-                cv2.line(frame, (frame.shape[1]//3, line_y), (frame.shape[1]*2//3, line_y), (255, 255, 255), 1)
-                cv2.line(frame, (frame.shape[1]//4, line_y + 20), (frame.shape[1]*3//4, line_y + 20), (255, 255, 255), 1)
+                
                 
         # # Encode the frame in JPEG format
         # _, buffer = cv2.imencode('.jpg', frame)
@@ -125,13 +127,15 @@ def index():
 def video_feed():
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/models/<path:path>')
-def serve_gltf(path):
-    return send_file(os.path.join('models', path), mimetype='model/gltf')
-
-@app.route('/fonts/<path:path>')
-def serve_font(path):
-    return send_file(os.path.join('fonts', path), mimetype='application/font-ttf')
-
+@app.route('/assets/<path:path>')
+def serve_assets(path):
+    if path.endswith('.ttf') or path.endswith('.otf'):
+        return send_file(os.path.join('fonts', path), mimetype='application/font-ttf')
+    elif path.endswith('.gltf'):  
+        return send_file(os.path.join('assets', path), mimetype='model/gltf')
+    elif path.endswith('.html'):  # New condition for HTML files
+        return send_file(os.path.join('assets', path), mimetype='text/html')
+    else:
+        return send_file(os.path.join('assets', path), mimetype='application/octet-stream')
 if __name__ == '__main__':
     app.run(debug=True)
