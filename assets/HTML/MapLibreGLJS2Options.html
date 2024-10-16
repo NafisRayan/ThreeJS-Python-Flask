@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Interactive 3D Map</title>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css' />
+    <script src='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js'></script>
+    <style>
+        body { margin: 0; padding: 0; }
+        html, body, #map { height: 100%; }
+        .loading-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: white;
+        }
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 5px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            z-index: 1;
+        }
+        button {
+            margin-bottom: 10px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<div class="loading-indicator">Loading...</div>
+<div class="controls">
+    <button id="zoom-in">Zoom In</button>
+    <button id="zoom-out">Zoom Out</button>
+    <button id="fullscreen-toggle">Fullscreen</button>
+    <button id="geolocation-refresh">Refresh Location</button>
+    <select id="style-switcher">
+        <option value="basic-v2">Basic Style</option>
+        <option value="hybrid-v2">Hybrid Style</option>
+        <option value="space-v2">Space Style</option>
+    </select>
+</div>
+
+<script>
+const MAPTILER_KEY = 'get_your_own_OpIi9ZULNHzrESv6T2vL';
+let map;
+
+function initMap() {
+    map = new maplibregl.Map({
+        style: `https://api.maptiler.com/maps/basic-v2/style.json?key=${MAPTILER_KEY}`,
+        center: [-74.0066, 40.7135],
+        zoom: 15.5,
+        pitch: 45,
+        bearing: -17.6,
+        container: 'map',
+        antialias: true
+    });
+
+    map.on('load', () => {
+        // Add building layer
+        map.addSource('openmaptiles', {
+            url: `https://api.maptiler.com/tiles/v3/tiles.json?key=${MAPTILER_KEY}`,
+            type: 'vector',
+        });
+        map.addLayer({
+            'id': '3d-buildings',
+            'source': 'openmaptiles',
+            'source-layer': 'building',
+            'type': 'fill-extrusion',
+            'minzoom': 15,
+            'filter': ['!=', ['get', 'hide_3d'], true],
+            'paint': {
+                'fill-extrusion-color': [
+                    'interpolate',
+                    ['linear'],
+                    ['get', 'render_height'], 0, 'lightgray', 200, 'royalblue', 400, 'lightblue'
+                ],
+                'fill-extrusion-height': [
+                    'interpolate',
+                    ['linear'],
+                    ['zoom'],
+                    15,
+                    0,
+                    16,
+                    ['get', 'render_height']
+                ],
+                'fill-extrusion-base': ['case',
+                    ['>=', ['get', 'zoom'], 16],
+                    ['get', 'render_min_height'], 0
+                ]
+            }
+        });
+
+        // Hide loading indicator
+        document.querySelector('.loading-indicator').style.display = 'none';
+
+        // Initialize controls
+        initControls();
+    });
+}
+
+function getLocation() {
+    const loadingIndicator = document.querySelector('.loading-indicator');
+    loadingIndicator.textContent = 'Getting location...';
+    loadingIndicator.style.display = 'block';
+
+    navigator.geolocation.getCurrentPosition(position => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        map.setCenter([lon, lat]);
+        map.setZoom(13);
+
+        new maplibregl.Marker({
+            color: '#ff0000',
+            scale: 0.5
+        }).setLngLat([lon, lat])
+            .addTo(map)
+            .setPopup(new maplibregl.Popup()
+                .setHTML(`<strong>You are here!</strong><br>Latitude: ${lat.toFixed(4)}<br>Longitude: ${lon.toFixed(4)}`)
+            )
+            .togglePopup();
+
+        loadingIndicator.style.display = 'none';
+    }, error => {
+        loadingIndicator.textContent = 'Location unavailable';
+        setTimeout(() => {
+            loadingIndicator.style.display = 'none';
+        }, 3000);
+    });
+}
+
+function initControls() {
+    document.getElementById('zoom-in').addEventListener('click', () => map.zoomIn());
+    document.getElementById('zoom-out').addEventListener('click', () => map.zoomOut());
+
+    document.getElementById('fullscreen-toggle').addEventListener('click', () => {
+        map.toggleFullscreen();
+    });
+
+    document.getElementById('geolocation-refresh').addEventListener('click', getLocation);
+
+    document.getElementById('style-switcher').addEventListener('change', event => {
+        const styleName = event.target.value;
+        map.setStyle(`https://api.maptiler.com/maps/${styleName}/style.json?key=${MAPTILER_KEY}`);
+    });
+
+    getLocation();
+}
+
+document.addEventListener('DOMContentLoaded', initMap);
+</script>
+</body>
+</html>

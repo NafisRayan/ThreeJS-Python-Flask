@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaming Chatbot UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        #three-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body class="h-screen flex items-center justify-center overflow-hidden">
+    <div id="three-container"></div>
+    <div class="w-full max-w-md bg-black bg-opacity-50 rounded-lg shadow-lg text-white">
+        <div class="p-4 border-b border-gray-600">
+            <div class="flex justify-between items-center">
+                <h1 class="text-xl font-semibold text-blue-400">Gaming Chatbot</h1>
+                <button id="theme-btn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <svg id="theme-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div id="chat-window" class="h-96 overflow-y-auto p-4 space-y-4">
+            <!-- Chat messages will be inserted here -->
+        </div>
+        <div class="p-4 border-t border-gray-600">
+            <div class="flex space-x-2">
+                <input type="text" id="user-input" class="flex-grow px-3 py-2 bg-gray-800 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type your message...">
+                <button id="send-btn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Three.js setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('three-container').appendChild(renderer.domElement);
+
+        // Create particles
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 5000;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for (let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 5;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.005,
+            color: 0x4da6ff
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        camera.position.z = 2;
+
+        // Mouse movement
+        let mouseX = 0;
+        let mouseY = 0;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = event.clientX / window.innerWidth - 0.5;
+            mouseY = event.clientY / window.innerHeight - 0.5;
+        });
+
+        // Animation
+        function animate() {
+            requestAnimationFrame(animate);
+
+            particlesMesh.rotation.y += 0.001;
+            particlesMesh.rotation.x += 0.001;
+
+            camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.05;
+            camera.position.y += (-mouseY * 0.5 - camera.position.y) * 0.05;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Chatbot UI
+        const chatWindow = document.getElementById('chat-window');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const themeBtn = document.getElementById('theme-btn');
+        const themeIcon = document.getElementById('theme-icon');
+
+        let isDarkMode = true;
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark');
+            updateThemeIcon();
+            particlesMaterial.color.setHex(isDarkMode ? 0x4da6ff : 0xff4d4d);
+        }
+
+        function updateThemeIcon() {
+            themeIcon.setAttribute('d', isDarkMode ? 'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z' : 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0016 12a9.003 9.003 0 01-4.646 7.354z');
+        }
+
+        function addMessage(message, isUser = false) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('flex', isUser ? 'justify-end' : 'justify-start');
+            
+            const textElement = document.createElement('div');
+            textElement.classList.add('max-w-xs', 'px-4', 'py-2', 'rounded-lg', isUser ? 'bg-blue-500' : 'bg-gray-600', 'text-white');
+            textElement.textContent = message;
+            
+            messageElement.appendChild(textElement);
+            chatWindow.appendChild(messageElement);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        function botResponse(userMessage) {
+            const responses = {
+                "hello": "Greetings, player! How may I assist you in your quest?",
+                "how are you": "I'm functioning at optimal capacity, ready to aid you in your adventures!",
+                "bye": "Farewell, brave adventurer! May your journey be filled with excitement and glory!"
+            };
+            
+            return responses[userMessage.toLowerCase()] || "I'm afraid I don't have information on that. Perhaps you could rephrase your query or ask about something else in our virtual realm?";
+        }
+
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (message) {
+                addMessage(message, true);
+                userInput.value = '';
+                
+                setTimeout(() => {
+                    const response = botResponse(message);
+                    addMessage(response);
+                }, 500);
+            }
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        themeBtn.addEventListener('click', toggleTheme);
+    </script>
+</body>
+</html>
