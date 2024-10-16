@@ -9,18 +9,49 @@
     
 </head>
 <body class="m-0 p-0 overflow-hidden">
-    <div class="fixed top-0 left-0 w-full h-full z-[-1]">
+    <!-- <div class="fixed top-0 left-0 w-full h-full z-[-1]">
         <img id="video-background" class="min-w-full min-h-full w-auto h-auto object-cover" src="{{ url_for('video_feed') }}" alt="Video Feed" />
-    </div>
+    </div> -->
     <div id="threejs-container" class="fixed top-0 left-0 w-full h-full"></div>
 
-<div class="absolute bottom-10 left-7 w-1/5 h-1/4 md:w-1/4 md:h-1/3 rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-500 fade-in">
-  <iframe src="/assets/HTML/MapLibreGLJS.html" title="Map Syatem" class="w-full h-full"></iframe>
-</div>
-
-<div class="absolute bottom-10 right-7 w-1/5 h-1/4 md:w-1/4 md:h-1/3 rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-500 fade-in">
-  <iframe src="/assets/HTML/ChatUI.html" title="Map Syatem" class="w-full h-full"></iframe>
-</div>
+    <div class="fixed top-0 left-0 w-full h-full z-[-1]">
+      <img id="video-background" class="min-w-full min-h-full w-auto h-auto object-cover" src="{{ url_for('video_feed') }}" alt="Video Feed" />
+  </div>
+  
+  <div class="absolute bottom-10 left-7 w-1/5 h-1/4 md:w-1/4 md:h-1/3 rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-500 fade-in">
+      <iframe src="/assets/HTML/MapLibreGLJS.html" title="Map System" class="w-full h-full" id="mapIframe"></iframe>
+  </div>
+  
+  <div class="absolute bottom-10 right-7 w-1/5 h-1/2 md:w-1/4 md:h-1/2 rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-500 fade-in">
+      <iframe src="/assets/HTML/ChatUI.html" title="Chat System" class="w-full h-full" id="chatIframe"></iframe>
+  </div>
+  
+  <!-- Buttons -->
+  <button id="hideVideoBtn" class="absolute top-5 left-5 bg-red-500 text-white p-2 rounded">Hide Video</button>
+  <button id="hideMapBtn" class="absolute bottom-10 left-5 bg-red-500 text-white p-2 rounded">Hide Map</button>
+  <button id="hideChatBtn" class="absolute bottom-10 right-5 bg-red-500 text-white p-2 rounded">Hide Chat</button>
+  
+  <script>
+      // Toggle Video Background
+      document.getElementById('hideVideoBtn').addEventListener('click', function() {
+          const videoBackground = document.getElementById('video-background');
+          videoBackground.style.display = (videoBackground.style.display === 'none') ? 'block' : 'none';
+      });
+  
+      // Toggle Map Iframe
+      document.getElementById('hideMapBtn').addEventListener('click', function() {
+          const mapIframe = document.getElementById('mapIframe');
+          mapIframe.style.display = (mapIframe.style.display === 'none') ? 'block' : 'none';
+      });
+  
+      // Toggle Chat Iframe
+      document.getElementById('hideChatBtn').addEventListener('click', function() {
+          const chatIframe = document.getElementById('chatIframe');
+          chatIframe.style.display = (chatIframe.style.display === 'none') ? 'block' : 'none';
+      });
+  </script>
+  
+    
 
     <script type="module">
         // Import the THREE.js library
@@ -146,6 +177,7 @@
         // loadAndAnimateModel('mars_surface_terrain_model', [50, 50, 50], [270,85,-500], [-.04, Math.PI, 0], false);
 
 
+        
 let ym = 3.5;
 
 // Create the centered horizontal lines
@@ -188,7 +220,7 @@ fontLoader.load('assets/fonts/helvetiker_bold.typeface.json', (font) => {
 
     const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
     const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-    textMesh.position.set(-14+xp, 8, -20); // Decreased z value
+    textMesh.position.set(-14+xp, 11, -20); // Decreased z value
     textMesh.rotation.set(0, 0, 0); // Set rotation to zero
     scene.add(textMesh);
 
@@ -203,28 +235,45 @@ fontLoader.load('assets/fonts/helvetiker_bold.typeface.json', (font) => {
 
     const secondaryTextMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
     const secondaryTextMesh = new THREE.Mesh(secondaryText, secondaryTextMaterial);
-    secondaryTextMesh.position.set(-14+xp, 6, -20); // Decreased z value, slightly higher than the first text
+    secondaryTextMesh.position.set(-14+xp, 9, -20); // Decreased z value, slightly higher than the first text
     secondaryTextMesh.rotation.set(0, 0, 0); // Set rotation to zero
     scene.add(secondaryTextMesh);
 
 });
 
 
+// Create the border plane
+const borderGeometry = new THREE.PlaneGeometry(10.2, 5.2); // Slightly larger for the border
+const borderMaterial = new THREE.MeshBasicMaterial({ color: 'black' });
+const border = new THREE.Mesh(borderGeometry, borderMaterial);
+border.position.set(-10 + xp, 10.5, -20); // Same position as statusBar
+border.rotation.set(0, 0, 0); // Set rotation to zero
+scene.add(border);
+
 // Create the status bar plane
-const statusBarGeometry = new THREE.PlaneGeometry(10, 5);
-const statusBarMaterial = new THREE.MeshBasicMaterial({ color: 0x333333 });
+const statusBarGeometry = new THREE.PlaneGeometry(10, 5, 2);
+const statusBarMaterial = new THREE.MeshBasicMaterial({ color: 'rgba(59,130,246,255)' });
 const statusBar = new THREE.Mesh(statusBarGeometry, statusBarMaterial);
-statusBar.position.set(-10+xp, 7.5, -20); // Decreased z value
+statusBar.position.set(-10 + xp, 10.5, -20); // Same position
 statusBar.rotation.set(0, 0, 0); // Set rotation to zero
 scene.add(statusBar);
 
-// Create the status bar plane
-const statusBarGeometry2 = new THREE.PlaneGeometry(10, 5);
-const statusBarMaterial2 = new THREE.MeshBasicMaterial({ color: 0x333333 });
+// Create the border plane for the second status bar
+const borderGeometry2 = new THREE.PlaneGeometry(10.2, 5.2);
+const borderMaterial2 = new THREE.MeshBasicMaterial({ color: 'black' });
+const border2 = new THREE.Mesh(borderGeometry2, borderMaterial2);
+border2.position.set(+10 - xp, 10.5, -20); // Same position as statusBar2
+border2.rotation.set(0, 0, 0); // Set rotation to zero
+scene.add(border2);
+
+// Create the second status bar plane
+const statusBarGeometry2 = new THREE.PlaneGeometry(10, 5, 2);
+const statusBarMaterial2 = new THREE.MeshBasicMaterial({ color: 'rgba(59,130,246,255)' });
 const statusBar2 = new THREE.Mesh(statusBarGeometry2, statusBarMaterial2);
-statusBar2.position.set(+10-xp, 7.5, -20); // Decreased z value
+statusBar2.position.set(+10 - xp, 10.5, -20); // Same position
 statusBar2.rotation.set(0, 0, 0); // Set rotation to zero
 scene.add(statusBar2);
+
 
 // Create the curved underline
 const underlineGeometry = new THREE.TorusGeometry(10/2.5, 0.5/2.5, 16/2.5, 100/2.5);
@@ -380,7 +429,7 @@ scene.add(underline);
         initXRHandControls();
 
         const video = document.getElementById('video-background');
-        video.style.pointerEvents = "none"; // Allow interaction with Three.js
+        // video.style.pointerEvents = "none"; // Allow interaction with Three.js
 
         animate(); // Start the animation loop
     </script>
