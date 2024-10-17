@@ -182,7 +182,11 @@ let ym = 3.5;
 
 // Create the centered horizontal lines
 const lineGeometry = new THREE.PlaneGeometry(16, 0.2);
-const lineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+const lineMaterial = new THREE.MeshBasicMaterial({
+  color: 0x0077b6, // React blue color
+  opacity: 0.7, // 50% opacity
+  transparent: true // Enable transparency
+});
 
 const line1 = new THREE.Mesh(lineGeometry, lineMaterial);
 line1.position.set(0, 5-ym, -20); // Decreased z value
@@ -273,6 +277,23 @@ const statusBar2 = new THREE.Mesh(statusBarGeometry2, statusBarMaterial2);
 statusBar2.position.set(+10 - xp, 10.5, -20); // Same position
 statusBar2.rotation.set(0, 0, 0); // Set rotation to zero
 scene.add(statusBar2);
+
+
+// Create the border plane for the third status bar
+const borderGeometry3 = new THREE.PlaneGeometry(10.2, 5.2);
+const borderMaterial3 = new THREE.MeshBasicMaterial({ color: 'black' });
+const border3 = new THREE.Mesh(borderGeometry3, borderMaterial3);
+border3.position.set(0, 10.5, -20); // Same position as statusBar3
+border3.rotation.set(0, 0, 0); // Set rotation to zero
+scene.add(border3);
+
+// Create the status bar plane
+const statusBarGeometry3 = new THREE.PlaneGeometry(10, 5, 2);
+const statusBarMaterial3 = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+const statusBar3 = new THREE.Mesh(statusBarGeometry3, statusBarMaterial3);
+statusBar3.position.set(0, 10.5, -20); // Position it at the top center of the scene
+statusBar3.rotation.set(0, 0, 0); // Set rotation to zero
+scene.add(statusBar3);
 
 
 // Create the curved underline
