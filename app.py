@@ -59,6 +59,16 @@ cv2.putText(frame, status_bar, ((image_width - text_size[0]) // 2, 25), cv2.FONT
 # cv2.line(frame, (frame.shape[1]//3, line_y), (frame.shape[1]*2//3, line_y), (255, 255, 255), 1)
 # cv2.line(frame, (frame.shape[1]//4, line_y + 20), (frame.shape[1]*3//4, line_y + 20), (255, 255, 255), 1)
 
+text_scale = 0.7  # to control all the sizes
+fontScale = text_scale
+textThickness = 2 
+textColor = (0, 0, 0)
+bgColor = (255, 255, 255)
+pad_x, pad_y = int(10 * text_scale), int(10 * text_scale)
+Opacity = 0.3
+
+
+
 def gen_frames():
     while True:
         success, frame = cap.read()  # Read the camera frame
@@ -85,19 +95,10 @@ def gen_frames():
                 x, y = textPos
                 text = f"{name} {conf}"
 
-                text_scale = 0.7  # to control all the sizes
-
                 text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, text_scale, 1)[0]
                 text_center = (max(0, x1) + text_size[0] // 2, max(24, y1) - text_size[1] // 2)
 
-                fontScale = text_scale
-                textThickness = 2 
-                textColor = (0, 0, 0)
-                bgColor = (255, 255, 255)
-                pad_x, pad_y = int(10 * text_scale), int(10 * text_scale)
-                Opacity = 0.3
                 (t_w, t_h) = text_size
-
                 overlay = frame.copy()  # copying the image
 
                 # Draw 
