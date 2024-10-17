@@ -39,30 +39,31 @@ cap = cv2.VideoCapture(0)  # 0 for the default camera
 cap.set(3, 1280)  # CV_CAP_PROP_FRAME_WIDTH
 cap.set(4, 720)   # CV_CAP_PROP_FRAME_HEIGHT
 
+success, frame = cap.read()
+# Draw status bar with curved underline
+time_str = datetime.datetime.now().strftime('%H:%M:%S')
+date_str = datetime.datetime.now().strftime('%Y-%m-%d')
+status_bar = f'Time: {time_str} | Date: {date_str} | Weather: Sunny, 29c'
+text_size = cv2.getTextSize(status_bar, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)[0]
+image_height, image_width, _ = frame.shape
+
+# Draw the curved line
+cv2.ellipse(frame, (image_width // 2, status_bar_height - curvature), (image_width // 2, curvature), 0, 0, 180, (255, 255, 255), 1)
+
+# Draw the status bar text
+cv2.putText(frame, status_bar, ((image_width - text_size[0]) // 2, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+
+# # Draw three horizontal lines in the center
+# line_y = frame.shape[0] // 2  # Y-coordinate for the center of the image
+# cv2.line(frame, (frame.shape[1]//4, line_y - 20), (frame.shape[1]*3//4, line_y - 20), (255, 255, 255), 1)
+# cv2.line(frame, (frame.shape[1]//3, line_y), (frame.shape[1]*2//3, line_y), (255, 255, 255), 1)
+# cv2.line(frame, (frame.shape[1]//4, line_y + 20), (frame.shape[1]*3//4, line_y + 20), (255, 255, 255), 1)
+
 def gen_frames():
     while True:
         success, frame = cap.read()  # Read the camera frame
         if not success:
             break
-        
-        # Draw status bar with curved underline
-        time_str = datetime.datetime.now().strftime('%H:%M:%S')
-        date_str = datetime.datetime.now().strftime('%Y-%m-%d')
-        status_bar = f'Time: {time_str} | Date: {date_str} | Weather: Sunny, 29c'
-        text_size = cv2.getTextSize(status_bar, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)[0]
-        image_height, image_width, _ = frame.shape
-        
-        # Draw the curved line
-        cv2.ellipse(frame, (image_width // 2, status_bar_height - curvature), (image_width // 2, curvature), 0, 0, 180, (255, 255, 255), 1)
-        
-        # Draw the status bar text
-        cv2.putText(frame, status_bar, ((image_width - text_size[0]) // 2, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
-
-        # # Draw three horizontal lines in the center
-        # line_y = frame.shape[0] // 2  # Y-coordinate for the center of the image
-        # cv2.line(frame, (frame.shape[1]//4, line_y - 20), (frame.shape[1]*3//4, line_y - 20), (255, 255, 255), 1)
-        # cv2.line(frame, (frame.shape[1]//3, line_y), (frame.shape[1]*2//3, line_y), (255, 255, 255), 1)
-        # cv2.line(frame, (frame.shape[1]//4, line_y + 20), (frame.shape[1]*3//4, line_y + 20), (255, 255, 255), 1)
         
         # Process the frame with YOLO
         results = model(frame)
@@ -107,12 +108,6 @@ def gen_frames():
                 cv2.rectangle(overlay, (max(0, x1) - pad_x, max(24, y1) - t_h - pad_y), (max(0, x1) + t_w + pad_x, max(24, y1) + pad_y), (0, 25, 30), int(2 * text_scale), cv2.LINE_AA)
 
                 frame = cv2.addWeighted(overlay, Opacity, frame, 1 - Opacity, 0)  # overlaying on the image.
-
-                
-                
-        # # Encode the frame in JPEG format
-        # _, buffer = cv2.imencode('.jpg', frame)
-        # frame = buffer.tobytes()
         
         _, buffer = cv2.imencode('.jpg', frame)
         frame = buffer.tobytes()
