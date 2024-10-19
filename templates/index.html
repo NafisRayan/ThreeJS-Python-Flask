@@ -27,7 +27,7 @@
   </div>
   
   <!-- Menu Button -->
-  <div class="absolute top-5 left-5">
+  <div class="absolute top-[30%] left-5 opacity-80">
       <button id="menuBtn" class="bg-blue-500 text-white p-10 text-2xl rounded flex items-center">
           <span>Menu</span>
           <i class="fas fa-cog ml-4"></i> <!-- Settings Icon -->
@@ -121,7 +121,9 @@
         // GLTF model folders
         const modelsFolders = [
 
-          { folder: 'robot', scale: [.7, .7, .7], position: [25, -14, -20], rotation: [0, 10.2, 0], animation: false },
+          { folder: 'squid_game', scale: [.1, .1, .1], position: [23, -10, -20], rotation: [0, 5.5, 0], animation: false },
+          // { folder: 'metal_gear_rising_murasama', scale: [7, 7, 7], position: [22, -7, -20], rotation: [0, 10.2, 0], animation: false },
+          // { folder: 'flat', scale: [30, 30, 30], position: [0, 0, 500], rotation: [0, 0, 0], animation: false },
 
         ];
 
@@ -214,111 +216,97 @@ const lineMaterial = new THREE.MeshBasicMaterial({
   transparent: true // Enable transparency
 });
 
-const line1 = new THREE.Mesh(lineGeometry, lineMaterial);
-line1.position.set(0, 5-ym, -20); // Decreased z value
-line1.rotation.set(0, 0, 0); // Set rotation to zero
-scene.add(line1);
+// const line1 = new THREE.Mesh(lineGeometry, lineMaterial);
+// line1.position.set(0, 5-ym, -20); // Decreased z value
+// line1.rotation.set(0, 0, 0); // Set rotation to zero
+// scene.add(line1);
 
-const line2 = new THREE.Mesh(lineGeometry, lineMaterial);
-line2.position.set(0, 2-ym, -20); // Decreased z value
-line2.rotation.set(0, 0, 0); // Set rotation to zero
-scene.add(line2);
+// const line2 = new THREE.Mesh(lineGeometry, lineMaterial);
+// line2.position.set(0, 2-ym, -20); // Decreased z value
+// line2.rotation.set(0, 0, 0); // Set rotation to zero
+// scene.add(line2);
 
-const line3 = new THREE.Mesh(lineGeometry, lineMaterial);
-line3.position.set(0, -1-ym, -20); // Decreased z value
-line3.rotation.set(0, 0, 0); // Set rotation to zero
-scene.add(line3);
-
-// Get current date and time
-const now = new Date();
-const formattedDateTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} | ${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} | Weather: Sunny, 29°C`;
+// const line3 = new THREE.Mesh(lineGeometry, lineMaterial);
+// line3.position.set(0, -1-ym, -20); // Decreased z value
+// line3.rotation.set(0, 0, 0); // Set rotation to zero
+// scene.add(line3);
 
 
 let xp = 35
+let yp = 1.5
 
-// Load the font and create the text
+// // Create the status bar plane
+// const statusBarGeometry = new THREE.PlaneGeometry(10, 5, 2);
+// const statusBarMaterial = new THREE.MeshStandardMaterial({
+//     color: 0xffffff,
+//     metalness: 0.5,
+//     roughness: 0.7,
+//     transparent: true,
+//     opacity: 0.8
+// });
+// const statusBar = new THREE.Mesh(statusBarGeometry, statusBarMaterial);
+// statusBar.position.set(-10 + xp, 10.5, -20); // Same position
+// statusBar.rotation.set(0, 0, 0); // Set rotation to zero
+// scene.add(statusBar);
+
+// // Create the second status bar plane
+// const statusBarGeometry2 = new THREE.PlaneGeometry(10, 5, 2);
+// const statusBarMaterial2 = new THREE.MeshStandardMaterial({
+//     color: 0xffffff,
+//     metalness: 0.5,
+//     roughness: 0.7,
+//     transparent: true,
+//     opacity: 0.8
+// });
+// const statusBar2 = new THREE.Mesh(statusBarGeometry2, statusBarMaterial2);
+// statusBar2.position.set(+10 - xp, 10.5, -20); // Same position
+// statusBar2.rotation.set(0, 0, 0); // Set rotation to zero
+// scene.add(statusBar2);
+
+
+
+
+// Create the status bar plane
+const NavBarGeometry = new THREE.PlaneGeometry(60, 5, 5);
+const NavBarMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    metalness: 0.5,
+    roughness: 0.7,
+    transparent: true,
+    opacity: 0.3
+});
+const NavBar = new THREE.Mesh(NavBarGeometry, NavBarMaterial);
+NavBar.position.set(0, 11+yp, -20);
+scene.add(NavBar);
+
+// Load font
 const fontLoader = new THREE.FontLoader();
 fontLoader.load('assets/fonts/helvetiker_bold.typeface.json', (font) => {
-    const textGeometry = new THREE.TextGeometry(`${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`, {
+    // Get current date and time
+    const now = new Date();
+
+    // Format the combined string
+    const formattedString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} | ${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} | Weather: Sunny, 29°C`;
+
+    // Create text geometry
+    const textGeometry = new THREE.TextGeometry(formattedString, {
         font: font,
-        size: 1,
-        height: 0.2,
+        size: 1.8,
+        height: 0.1,
         curveSegments: 12,
         bevelEnabled: false,
     });
 
-    const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    // Create text material
+    const textMaterial = new THREE.MeshBasicMaterial({ color: 'black' });
+
+    // Create text mesh
     const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-    textMesh.position.set(-14+xp, 11, -20); // Decreased z value
-    textMesh.rotation.set(0, 0, 0); // Set rotation to zero
+    textMesh.position.set(-24.5, 10+yp, -20); // Centered horizontally
+
+    // Add text mesh to scene
     scene.add(textMesh);
-
-    // Add another text mesh below the first one
-    const secondaryText = new THREE.TextGeometry(`${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`, {
-        font: font,
-        size: 1,
-        height: 0.2,
-        curveSegments: 12,
-        bevelEnabled: false,
-    });
-
-    const secondaryTextMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    const secondaryTextMesh = new THREE.Mesh(secondaryText, secondaryTextMaterial);
-    secondaryTextMesh.position.set(-14+xp, 9, -20); // Decreased z value, slightly higher than the first text
-    secondaryTextMesh.rotation.set(0, 0, 0); // Set rotation to zero
-    scene.add(secondaryTextMesh);
-
 });
-
-
-// Create the border plane
-const borderGeometry = new THREE.PlaneGeometry(10.2, 5.2); // Slightly larger for the border
-const borderMaterial = new THREE.MeshBasicMaterial({ color: 'black' });
-const border = new THREE.Mesh(borderGeometry, borderMaterial);
-border.position.set(-10 + xp, 10.5, -20); // Same position as statusBar
-border.rotation.set(0, 0, 0); // Set rotation to zero
-scene.add(border);
-
-// Create the status bar plane
-const statusBarGeometry = new THREE.PlaneGeometry(10, 5, 2);
-const statusBarMaterial = new THREE.MeshBasicMaterial({ color: 'rgba(59,130,246,255)' });
-const statusBar = new THREE.Mesh(statusBarGeometry, statusBarMaterial);
-statusBar.position.set(-10 + xp, 10.5, -20); // Same position
-statusBar.rotation.set(0, 0, 0); // Set rotation to zero
-scene.add(statusBar);
-
-// Create the border plane for the second status bar
-const borderGeometry2 = new THREE.PlaneGeometry(10.2, 5.2);
-const borderMaterial2 = new THREE.MeshBasicMaterial({ color: 'black' });
-const border2 = new THREE.Mesh(borderGeometry2, borderMaterial2);
-border2.position.set(+10 - xp, 10.5, -20); // Same position as statusBar2
-border2.rotation.set(0, 0, 0); // Set rotation to zero
-scene.add(border2);
-
-// Create the second status bar plane
-const statusBarGeometry2 = new THREE.PlaneGeometry(10, 5, 2);
-const statusBarMaterial2 = new THREE.MeshBasicMaterial({ color: 'rgba(59,130,246,255)' });
-const statusBar2 = new THREE.Mesh(statusBarGeometry2, statusBarMaterial2);
-statusBar2.position.set(+10 - xp, 10.5, -20); // Same position
-statusBar2.rotation.set(0, 0, 0); // Set rotation to zero
-scene.add(statusBar2);
-
-
-// Create the border plane for the third status bar
-const borderGeometry3 = new THREE.PlaneGeometry(10.2, 5.2);
-const borderMaterial3 = new THREE.MeshBasicMaterial({ color: 'black' });
-const border3 = new THREE.Mesh(borderGeometry3, borderMaterial3);
-border3.position.set(0, 10.5, -20); // Same position as statusBar3
-border3.rotation.set(0, 0, 0); // Set rotation to zero
-scene.add(border3);
-
-// Create the status bar plane
-const statusBarGeometry3 = new THREE.PlaneGeometry(10, 5, 2);
-const statusBarMaterial3 = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const statusBar3 = new THREE.Mesh(statusBarGeometry3, statusBarMaterial3);
-statusBar3.position.set(0, 10.5, -20); // Position it at the top center of the scene
-statusBar3.rotation.set(0, 0, 0); // Set rotation to zero
-scene.add(statusBar3);
 
 
 // Create the curved underline
@@ -329,14 +317,6 @@ scene.add(statusBar3);
 // underline.rotation.set(0, 0, 0); // Set rotation to zero
 // scene.add(underline);
 
-// // Create a rectangle geometry
-// const rectangleGeometry = new THREE.PlaneGeometry(12, 7);
-// const rectangleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-// const rectangle = new THREE.Mesh(rectangleGeometry, rectangleMaterial);
-
-// rectangle.position.set(-25, -10, -20); // Decreased z value
-// rectangle.rotation.set(0, 0, 0); // Set rotation to zero
-// scene.add(rectangle);
 
 
 
@@ -348,22 +328,6 @@ scene.add(statusBar3);
 
 // // Add the iframe to the document body
 // document.body.appendChild(iframe);
-
-
-
-// // Create a rectangle geometry
-// const rectangleGeometry = new THREE.PlaneGeometry(12, 7);
-
-// // Load the texture from the 'assets/HTML/map.html' file
-// const mapTexture = new THREE.TextureLoader().load('assets/HTML/map.html');
-
-// // Create a rectangle material with the loaded texture
-// const rectangleMaterial = new THREE.MeshBasicMaterial({ map: mapTexture });
-// const rectangle = new THREE.Mesh(rectangleGeometry, rectangleMaterial);
-
-// rectangle.position.set(-25, -10, -20); // Decreased z value
-// rectangle.rotation.set(0, 0, 0); // Set rotation to zero
-// scene.add(rectangle);
 
 
 
@@ -383,7 +347,7 @@ scene.add(statusBar3);
 
         // Camera movement controls
         const keys = {};
-        const moveSpeed = 0.1;
+        const moveSpeed = 1;
         const moveVector = new THREE.Vector3();
 
         window.addEventListener('keydown', (event) => {

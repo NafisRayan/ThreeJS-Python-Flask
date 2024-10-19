@@ -104,17 +104,17 @@ def gen_frames():
                 break
 
             # Draw status bar with curved underline
-            time_str = datetime.datetime.now().strftime('%H:%M:%S')
-            date_str = datetime.datetime.now().strftime('%Y-%m-%d')
-            status_bar = f'Time: {time_str} | Date: {date_str} | Weather: Sunny, 29c'
-            text_size = cv2.getTextSize(status_bar, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)[0]
-            image_height, image_width, _ = frame.shape
+            # time_str = datetime.datetime.now().strftime('%H:%M:%S')
+            # date_str = datetime.datetime.now().strftime('%Y-%m-%d')
+            # status_bar = f'Time: {time_str} | Date: {date_str} | Weather: Sunny, 29c'
+            # text_size = cv2.getTextSize(status_bar, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)[0]
+            # image_height, image_width, _ = frame.shape
             
-            # Draw the curved line
-            cv2.ellipse(frame, (image_width // 2, status_bar_height - curvature), (image_width // 2, curvature), 0, 0, 180, (255, 255, 255), 1)
+            # # Draw the curved line
+            # cv2.ellipse(frame, (image_width // 2, status_bar_height - curvature), (image_width // 2, curvature), 0, 0, 180, (255, 255, 255), 1)
             
-            # Draw the status bar text
-            cv2.putText(frame, status_bar, ((image_width - text_size[0]) // 2, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+            # # Draw the status bar text
+            # cv2.putText(frame, status_bar, ((image_width - text_size[0]) // 2, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
 
             # Process the frame asynchronously
             frame = executor.submit(process_frame, frame).result()
@@ -140,6 +140,9 @@ def serve_assets(path):
         return send_file(os.path.join('assets', path), mimetype='model/gltf')
     elif path.endswith('.html'):  # New condition for HTML files
         return send_file(os.path.join('assets', path), mimetype='text/html')
+    # do for icons folder
+    elif path.endswith('.png'):
+        return send_file(os.path.join('assets', path), mimetype='image/png')
     else:
         return send_file(os.path.join('assets', path), mimetype='application/octet-stream')
 
