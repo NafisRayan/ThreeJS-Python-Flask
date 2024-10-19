@@ -27,15 +27,15 @@
   </div>
   
   <!-- Menu Button -->
-  <div class="absolute top-[30%] left-5 opacity-80">
-      <button id="menuBtn" class="bg-blue-500 text-white p-10 text-2xl rounded flex items-center">
+  <div class="absolute top-[35%] left-5 opacity-80 w-64 h-16">
+      <button id="menuBtn" class="bg-blue-500 text-white p-4 text-xl rounded flex items-center">
           <span>Menu</span>
-          <i class="fas fa-cog ml-4"></i> <!-- Settings Icon -->
+          <i class="fas fa-cog ml-2"></i> <!-- Settings Icon -->
       </button>
-      <div id="dropdown" class="hidden bg-white shadow-lg rounded mt-2">
-          <button id="hideVideoBtn" class="block text-left w-full px-4 py-2 hover:bg-gray-200">Toggle Video</button>
-          <button id="hideMapBtn" class="block text-left w-full px-4 py-2 hover:bg-gray-200">Toggle Map</button>
-          <button id="hideChatBtn" class="block text-left w-full px-4 py-2 hover:bg-gray-200">Toggle Chat</button>
+      <div id="dropdown" class="hidden bg-white shadow-lg rounded mt-1 w-48 h-24">
+          <button id="hideVideoBtn" class="block text-left w-full px-2 py-1 hover:bg-gray-200">Toggle Video</button>
+          <button id="hideMapBtn" class="block text-left w-full px-2 py-1 hover:bg-gray-200">Toggle Map</button>
+          <button id="hideChatBtn" class="block text-left w-full px-2 py-1 hover:bg-gray-200">Toggle Chat</button>
       </div>
   </div>
   
@@ -233,7 +233,7 @@ const lineMaterial = new THREE.MeshBasicMaterial({
 
 
 let xp = 35
-let yp = 1.5
+let yp = 3
 
 // // Create the status bar plane
 // const statusBarGeometry = new THREE.PlaneGeometry(10, 5, 2);
@@ -266,8 +266,51 @@ let yp = 1.5
 
 
 
+// // Create the status bar plane
+// const NavBarGeometry = new THREE.PlaneGeometry(60, 5, 5);
+// const NavBarMaterial = new THREE.MeshStandardMaterial({
+//     color: 0xffffff,
+//     metalness: 0.5,
+//     roughness: 0.7,
+//     transparent: true,
+//     opacity: 0.3
+// });
+// const NavBar = new THREE.Mesh(NavBarGeometry, NavBarMaterial);
+// NavBar.position.set(0, 11+yp, -20);
+// scene.add(NavBar);
+
+// // Load font
+// const fontLoader = new THREE.FontLoader();
+// fontLoader.load('assets/fonts/helvetiker_bold.typeface.json', (font) => {
+//     // Get current date and time
+//     const now = new Date();
+
+//     // Format the combined string
+//     const formattedString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} | ${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} | Weather: Sunny, 29°C`;
+
+//     // Create text geometry
+//     const textGeometry = new THREE.TextGeometry(formattedString, {
+//         font: font,
+//         size: 1.8,
+//         height: 0.1,
+//         curveSegments: 12,
+//         bevelEnabled: false,
+//     });
+
+//     // Create text material
+//     const textMaterial = new THREE.MeshBasicMaterial({ color: 'black' });
+
+//     // Create text mesh
+//     const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+//     textMesh.position.set(-24.5, 10+yp, -20); // Centered horizontally
+
+//     // Add text mesh to scene
+//     scene.add(textMesh);
+// });
+
+
 // Create the status bar plane
-const NavBarGeometry = new THREE.PlaneGeometry(60, 5, 5);
+const NavBarGeometry = new THREE.PlaneGeometry(60, 5/3, 5);
 const NavBarMaterial = new THREE.MeshStandardMaterial({
     color: 0xffffff,
     metalness: 0.5,
@@ -291,7 +334,7 @@ fontLoader.load('assets/fonts/helvetiker_bold.typeface.json', (font) => {
     // Create text geometry
     const textGeometry = new THREE.TextGeometry(formattedString, {
         font: font,
-        size: 1.8,
+        size: 1.8/3,
         height: 0.1,
         curveSegments: 12,
         bevelEnabled: false,
@@ -302,7 +345,7 @@ fontLoader.load('assets/fonts/helvetiker_bold.typeface.json', (font) => {
 
     // Create text mesh
     const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-    textMesh.position.set(-24.5, 10+yp, -20); // Centered horizontally
+    textMesh.position.set(13, 10.57+yp, -20); // Centered horizontally
 
     // Add text mesh to scene
     scene.add(textMesh);

@@ -38,7 +38,7 @@ status_bar_color = (0, 0, 0)
 curvature = 30
 
 # Initialize the video capture
-cap = cv2.VideoCapture(0)  # 0 for the default camera
+cap = cv2.VideoCapture('fpv.mp4')  # 0 for the default camera
 cap.set(3, 1280)  # CV_CAP_PROP_FRAME_WIDTH
 cap.set(4, 720)   # CV_CAP_PROP_FRAME_HEIGHT
 
@@ -80,7 +80,7 @@ def process_frame(frame):
             textColor = (0, 0, 0)
             bgColor = randomColors
             pad_x, pad_y = int(10 * text_scale), int(10 * text_scale)
-            Opacity = 0.7
+            Opacity = 1
             (t_w, t_h) = text_size
 
             overlay = frame.copy()  # copying the image
