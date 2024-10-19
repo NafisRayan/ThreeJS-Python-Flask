@@ -1,5 +1,4 @@
 /myenv
-/static
 assets/models
 /yolov8n.pt
 /yolo11n.pt
