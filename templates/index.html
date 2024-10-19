@@ -26,10 +26,18 @@
       <iframe src="/assets/HTML/ChatUI.html" title="Chat System" class="w-full h-full" id="chatIframe"></iframe>
   </div>
   
-  <!-- Buttons -->
-  <button id="hideVideoBtn" class="absolute top-5 left-5 bg-red-500 text-white p-2 rounded">Hide Video</button>
-  <button id="hideMapBtn" class="absolute bottom-10 left-5 bg-red-500 text-white p-2 rounded">Hide Map</button>
-  <button id="hideChatBtn" class="absolute bottom-10 right-5 bg-red-500 text-white p-2 rounded">Hide Chat</button>
+  <!-- Menu Button -->
+  <div class="absolute top-5 left-5">
+      <button id="menuBtn" class="bg-blue-500 text-white p-10 text-2xl rounded flex items-center">
+          <span>Menu</span>
+          <i class="fas fa-cog ml-4"></i> <!-- Settings Icon -->
+      </button>
+      <div id="dropdown" class="hidden bg-white shadow-lg rounded mt-2">
+          <button id="hideVideoBtn" class="block text-left w-full px-4 py-2 hover:bg-gray-200">Toggle Video</button>
+          <button id="hideMapBtn" class="block text-left w-full px-4 py-2 hover:bg-gray-200">Toggle Map</button>
+          <button id="hideChatBtn" class="block text-left w-full px-4 py-2 hover:bg-gray-200">Toggle Chat</button>
+      </div>
+  </div>
   
   <script>
       // Toggle Video Background
@@ -49,7 +57,25 @@
           const chatIframe = document.getElementById('chatIframe');
           chatIframe.style.display = (chatIframe.style.display === 'none') ? 'block' : 'none';
       });
+  
+      // Toggle Dropdown Menu
+      document.getElementById('menuBtn').addEventListener('click', function(event) {
+          event.stopPropagation(); // Prevent event from bubbling up
+          const dropdown = document.getElementById('dropdown');
+          dropdown.classList.toggle('hidden');
+      });
+  
+      // Close dropdown when clicking outside
+      window.addEventListener('click', function(event) {
+          if (!event.target.matches('#menuBtn') && !event.target.closest('#dropdown')) {
+              document.getElementById('dropdown').classList.add('hidden');
+          }
+      });
   </script>
+  
+  <!-- Include Font Awesome for the icon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  
   
     
 
@@ -207,7 +233,6 @@ scene.add(line3);
 const now = new Date();
 const formattedDateTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} | ${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} | Weather: Sunny, 29°C`;
 
-// ... (previous code remains unchanged)
 
 let xp = 35
 
@@ -297,12 +322,12 @@ scene.add(statusBar3);
 
 
 // Create the curved underline
-const underlineGeometry = new THREE.TorusGeometry(10/2.5, 0.5/2.5, 16/2.5, 100/2.5);
-const underlineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-const underline = new THREE.Mesh(underlineGeometry, underlineMaterial);
-underline.position.set(-25, -8, -20); // Decreased z value
-underline.rotation.set(0, 0, 0); // Set rotation to zero
-scene.add(underline);
+// const underlineGeometry = new THREE.TorusGeometry(10/2.5, 0.5/2.5, 16/2.5, 100/2.5);
+// const underlineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+// const underline = new THREE.Mesh(underlineGeometry, underlineMaterial);
+// underline.position.set(-25, -8, -20); // Decreased z value
+// underline.rotation.set(0, 0, 0); // Set rotation to zero
+// scene.add(underline);
 
 // // Create a rectangle geometry
 // const rectangleGeometry = new THREE.PlaneGeometry(12, 7);

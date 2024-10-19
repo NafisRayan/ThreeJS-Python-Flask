@@ -11,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 app = Flask(__name__, static_url_path='/static')
 
 # Load the YOLO model (adjust the path as needed)
-model = YOLO("yolov8n.pt")  # Replace with your model path
+model = YOLO("yolo8n.pt")  # Replace with your model path
 
 classNames = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck", "boat", "traffic light",
               "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep", "cow",
