@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech to Text Chatbot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="h-screen overflow-hidden bg-transparent">
+    <div class="flex flex-col h-full">
+        <!-- Chat Window -->
+        <div id="chat-window" class="flex-grow overflow-y-auto p-4 space-y-4 bg-black bg-opacity-0">
+            <!-- Chat messages will be inserted here -->
+        </div>
+
+        <!-- Input Section -->
+        <div class="p-4 border-t border-gray-600 bg-black bg-opacity-0">
+            <div class="flex space-x-2">
+                <!-- Voice Button for Speech Recognition -->
+                <button id="voice-btn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <i class="fas fa-microphone"></i>
+                </button>
+
+                <!-- Text Input for User -->
+                <input type="text" id="user-input" class="flex-grow px-3 py-2 bg-gray-800 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type your message...">
+
+                <!-- Send Button -->
+                <button id="send-btn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const chatWindow = document.getElementById('chat-window');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const voiceBtn = document.getElementById('voice-btn');
+
+        // Function to add a message to the chat
+        function addMessage(message, isUser = false) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('flex', isUser ? 'justify-end' : 'justify-start');
+
+            const textElement = document.createElement('div');
+            textElement.classList.add('max-w-xs', 'px-4', 'py-2', 'rounded-lg', isUser ? 'bg-blue-500' : 'bg-gray-600', 'text-white');
+            textElement.textContent = message;
+
+            messageElement.appendChild(textElement);
+            chatWindow.appendChild(messageElement);
+            chatWindow.scrollTop = chatWindow.scrollHeight;  // Scroll to the latest message
+
+            // If it's a bot response, add a voice option
+            if (!isUser) {
+                addVoiceOption(messageElement);
+            }
+        }
+
+        // Add a button to read the response aloud
+        function addVoiceOption(messageElement) {
+            const voiceButton = document.createElement('button');
+            voiceButton.classList.add('mt-2', "ml-5", 'w-9', 'h-9','bg-green-500', 'text-white', 'rounded-lg', 'hover:bg-green-600', 'focus:outline-none', 'focus:ring-2', 'focus:ring-green-500');
+            voiceButton.onclick = () => readOutLoud(messageElement.textContent);  // Read the message aloud
+            
+            // Icon for speaking response
+            const voiceIcon = document.createElement('i');
+            voiceIcon.classList.add('fas', 'fa-volume-up');  // Volume up icon
+            voiceButton.appendChild(voiceIcon);
+
+            messageElement.appendChild(voiceButton);
+        }
+
+        // Function to read the response aloud using Text-to-Speech
+        function readOutLoud(text) {
+            const speech = new SpeechSynthesisUtterance();
+            speech.text = text;
+            window.speechSynthesis.speak(speech);
+        }
+
+        // Bot response logic
+        function botResponse(userMessage) {
+            const responses = {
+                "hello": "Greetings, player! How may I assist you in your quest?",
+                "how are you": "I'm functioning at optimal capacity, ready to aid you in your adventures!",
+                "bye": "Farewell, brave adventurer! May your journey be filled with excitement and glory!"
+            };
+
+            return responses[userMessage.toLowerCase()] || "I'm afraid I don't have information on that. Perhaps you could rephrase your query or ask about something else in our virtual realm?";
+        }
+
+        // Send message function
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (message) {
+                addMessage(message, true);  // Add user message
+                userInput.value = '';       // Clear input field
+
+                setTimeout(() => {
+                    const response = botResponse(message);  // Get bot response
+                    addMessage(response);  // Add bot response to chat
+                }, 500);
+            }
+        }
+
+        // Event listeners for sending messages
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Voice Recognition (Speech to Text) functionality
+        voiceBtn.addEventListener('click', () => {
+            // Check if SpeechRecognition is supported
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+
+                recognition.lang = 'en-US';  // Set language
+                recognition.interimResults = false;  // Final results only
+                recognition.continuous = false;  // Stop listening after result
+
+                // Start speech recognition
+                recognition.start();
+
+                // Capture result from speech input
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;  // Get the first result
+                    userInput.value += transcript + ' ';  // Append the recognized speech to the input field
+                };
+
+                // Handle recognition errors
+                recognition.onerror = (event) => {
+                    console.error("Speech recognition error:", event.error);
+                };
+            } else {
+                alert('Your browser does not support speech recognition.');
+            }
+        });
+    </script>
+</body>
+</html>

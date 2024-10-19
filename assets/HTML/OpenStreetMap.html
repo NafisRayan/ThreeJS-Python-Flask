@@ -1,0 +1,44 @@
+<html>
+<head>
+    <title>Leaflet Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
+</head>
+<body>
+    <div id="mapid" style="height: 100%; width: 100%;"></div>
+    <script>
+        // Create a map instance
+        var mymap = L.map('mapid').setView([51.505, -0.09], 13); // Default view
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(mymap);
+
+        // Function to get user's location
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var lat = position.coords.latitude;
+                    var lon = position.coords.longitude;
+
+                    // Update map view to user's location
+                    mymap.setView([lat, lon], 13);
+                    
+                    // Add a marker at the user's location
+                    L.marker([lat, lon]).addTo(mymap)
+                        .bindPopup("You are here!")
+                        .openPopup();
+                }, function() {
+                    alert("Geolocation is not enabled or permission denied.");
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        // Call the function to get the user's location
+        getLocation();
+    </script>
+</body>
+</html>
