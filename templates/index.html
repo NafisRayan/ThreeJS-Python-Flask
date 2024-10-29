@@ -25,53 +25,9 @@
   <div class="absolute bottom-10 right-7 w-1/5 h-1/2 md:w-1/4 md:h-1/2 rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-500 fade-in">
       <iframe src="/assets/HTML/ChatUI.html" title="Chat System" class="w-full h-full" id="chatIframe"></iframe>
   </div>
+
   
-  <!-- Menu Button -->
-  <div class="absolute top-[35%] left-5 opacity-80 w-64 h-16">
-      <button id="menuBtn" class="bg-blue-500 text-white p-4 text-xl rounded flex items-center">
-          <span>Menu</span>
-          <i class="fas fa-cog ml-2"></i> <!-- Settings Icon -->
-      </button>
-      <div id="dropdown" class="hidden bg-white shadow-lg rounded mt-1 w-48 h-24">
-          <button id="hideVideoBtn" class="block text-left w-full px-2 py-1 hover:bg-gray-200">Toggle Video</button>
-          <button id="hideMapBtn" class="block text-left w-full px-2 py-1 hover:bg-gray-200">Toggle Map</button>
-          <button id="hideChatBtn" class="block text-left w-full px-2 py-1 hover:bg-gray-200">Toggle Chat</button>
-      </div>
-  </div>
-  
-  <script>
-      // Toggle Video Background
-      document.getElementById('hideVideoBtn').addEventListener('click', function() {
-          const videoBackground = document.getElementById('video-background');
-          videoBackground.style.display = (videoBackground.style.display === 'none') ? 'block' : 'none';
-      });
-  
-      // Toggle Map Iframe
-      document.getElementById('hideMapBtn').addEventListener('click', function() {
-          const mapIframe = document.getElementById('mapIframe');
-          mapIframe.style.display = (mapIframe.style.display === 'none') ? 'block' : 'none';
-      });
-  
-      // Toggle Chat Iframe
-      document.getElementById('hideChatBtn').addEventListener('click', function() {
-          const chatIframe = document.getElementById('chatIframe');
-          chatIframe.style.display = (chatIframe.style.display === 'none') ? 'block' : 'none';
-      });
-  
-      // Toggle Dropdown Menu
-      document.getElementById('menuBtn').addEventListener('click', function(event) {
-          event.stopPropagation(); // Prevent event from bubbling up
-          const dropdown = document.getElementById('dropdown');
-          dropdown.classList.toggle('hidden');
-      });
-  
-      // Close dropdown when clicking outside
-      window.addEventListener('click', function(event) {
-          if (!event.target.matches('#menuBtn') && !event.target.closest('#dropdown')) {
-              document.getElementById('dropdown').classList.add('hidden');
-          }
-      });
-  </script>
+
   
   <!-- Include Font Awesome for the icon -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -442,7 +398,7 @@ fontLoader.load('assets/fonts/helvetiker_bold.typeface.json', (font) => {
         }
 
         function animate() {
-          renderer.setAnimationLoop(() => {
+          renderer.setAnimationLoop((timestamp, frame) => {
             moveCamera();
             controls.update();
 
@@ -453,6 +409,24 @@ fontLoader.load('assets/fonts/helvetiker_bold.typeface.json', (font) => {
               }
             });
 
+            // Update hand models if in VR
+            if (renderer.xr.isPresenting) {
+              if (leftHand) {
+                if (typeof leftHand.update === 'function') {
+                  leftHand.update();
+                }
+              }
+              if (rightHand) {
+                if (typeof rightHand.update === 'function') {
+                  rightHand.update();
+                }
+              }
+            }
+
+            // Check for button interactions if in XR mode
+            if (renderer.xr.isPresenting) {
+              checkXRButtonIntersections();
+            }
 
             renderer.render(scene, camera);
           });
@@ -472,6 +446,222 @@ fontLoader.load('assets/fonts/helvetiker_bold.typeface.json', (font) => {
         // video.style.pointerEvents = "none"; // Allow interaction with Three.js
 
         animate(); // Start the animation loop
+
+        // Add these constants after creating the scene
+        const raycaster = new THREE.Raycaster();
+        const buttons = [];
+
+        // Add this function after the scene setup but before the animate loop
+        function createButton(text, position, onClick) {
+            const buttonGroup = new THREE.Group();
+            
+            // Create button background with status bar-matching style
+            const geometry = new THREE.PlaneGeometry(4, 5/3); // Adjusted height to match status bar
+            const material = new THREE.MeshStandardMaterial({
+                color: 0xffffff,
+                metalness: 0.5,
+                roughness: 0.7,
+                transparent: true,
+                opacity: 0.3  // Match status bar opacity
+            });
+            const buttonMesh = new THREE.Mesh(geometry, material);
+            
+            // Create text with matching style
+            const fontLoader = new THREE.FontLoader();
+            fontLoader.load('assets/fonts/helvetiker_bold.typeface.json', (font) => {
+                const textGeometry = new THREE.TextGeometry(text, {
+                    font: font,
+                    size: 1.8/3,  // Match status bar text size
+                    height: 0.1,
+                    curveSegments: 12,
+                    bevelEnabled: false,
+                });
+                const textMaterial = new THREE.MeshBasicMaterial({ color: 'black' });
+                const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+                
+                // Center text on button
+                textGeometry.computeBoundingBox();
+                const textWidth = textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x;
+                textMesh.position.set(-textWidth/2, -0.2, 0.1);
+                
+                buttonGroup.add(textMesh);
+            });
+            
+            buttonGroup.add(buttonMesh);
+            buttonGroup.position.copy(position);
+            
+            buttonGroup.userData = {
+                isButton: true,
+                onClick: onClick,
+                originalColor: material.color.getHex(),
+                material: material
+            };
+            
+            buttons.push(buttonGroup);
+            scene.add(buttonGroup);
+            return buttonGroup;
+        }
+
+        // Create a menu system to hold buttons
+        const menuButtons = [];
+        let menuVisible = false;
+
+        // Create the main menu button (adjusted position to match status bar)
+        function createMenuButton() {
+            const menuButton = createButton("Menu", new THREE.Vector3(-25, 11+yp, -20), () => {
+                toggleMenu();
+            });
+            
+            // Make menu button always visible
+            menuButton.visible = true;
+            return menuButton;
+        }
+
+        // Create the menu items (adjusted positions relative to menu button)
+        function createMenuItems() {
+            const buttons = [
+                createButton("Video", new THREE.Vector3(-25, 8+yp, -20), () => {
+                    const videoBackground = document.getElementById('video-background');
+                    videoBackground.style.display = (videoBackground.style.display === 'none') ? 'block' : 'none';
+                }),
+                createButton("Map", new THREE.Vector3(-25, 6+yp, -20), () => {
+                    const mapIframe = document.getElementById('mapIframe');
+                    mapIframe.style.display = (mapIframe.style.display === 'none') ? 'block' : 'none';
+                }),
+                createButton("Chat", new THREE.Vector3(-25, 4+yp, -20), () => {
+                    const chatIframe = document.getElementById('chatIframe');
+                    chatIframe.style.display = (chatIframe.style.display === 'none') ? 'block' : 'none';
+                })
+            ];
+            
+            // Hide all menu items initially
+            buttons.forEach(button => {
+                button.visible = false;
+                menuButtons.push(button);
+            });
+            
+            return buttons;
+        }
+
+        // Toggle menu visibility
+        function toggleMenu() {
+            menuVisible = !menuVisible;
+            menuButtons.forEach(button => {
+                button.visible = menuVisible;
+            });
+        }
+
+        // Create all buttons
+        const menuButton = createMenuButton();
+        const menuItems = createMenuItems();
+
+        // Modify the checkXRButtonIntersections function to handle all buttons
+        function checkXRButtonIntersections() {
+            if (!leftHand || !rightHand) return;
+            
+            const hands = [leftHand, rightHand];
+            hands.forEach(hand => {
+                const indexTip = hand.joints['index-finger-tip'];
+                if (!indexTip) return;
+                
+                const fingerDirection = new THREE.Vector3(0, 0, -1);
+                fingerDirection.applyQuaternion(indexTip.quaternion);
+                
+                raycaster.set(indexTip.position, fingerDirection);
+                
+                // Check intersections with visible buttons only
+                const visibleButtons = [menuButton, ...menuButtons].filter(button => button.visible);
+                const intersects = raycaster.intersectObjects(
+                    visibleButtons.map(button => button.children[0]),
+                    true
+                );
+                
+                // Reset all visible buttons to original color
+                visibleButtons.forEach(button => {
+                    if (button.userData.material) {
+                        button.userData.material.color.setHex(button.userData.originalColor);
+                    }
+                });
+                
+                if (intersects.length > 0) {
+                    const button = intersects[0].object.parent;
+                    if (button.userData.isButton) {
+                        button.userData.material.color.setHex(0x64b5f6);
+                        
+                        if (intersects[0].distance < 0.1) {
+                            console.log('Button pressed!');
+                            button.userData.onClick();
+                            
+                            button.userData.isButton = false;
+                            setTimeout(() => {
+                                button.userData.isButton = true;
+                            }, 1000);
+                        }
+                    }
+                }
+            });
+        }
+
+        // Add mouse interaction capability
+        const mouse = new THREE.Vector2();
+        const mouseRaycaster = new THREE.Raycaster();
+
+        // Add event listeners for mouse interaction
+        window.addEventListener('mousemove', (event) => {
+            // Calculate mouse position in normalized device coordinates
+            // (-1 to +1) for both components
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            // Update the picking ray with the camera and mouse position
+            mouseRaycaster.setFromCamera(mouse, camera);
+
+            // Calculate objects intersecting the picking ray
+            const intersects = mouseRaycaster.intersectObjects(
+                buttons.map(button => button.children[0]),
+                true
+            );
+
+            // Reset all buttons to original color
+            buttons.forEach(button => {
+                if (button.userData.material) {
+                    button.userData.material.color.setHex(button.userData.originalColor);
+                }
+            });
+
+            // Highlight button on hover
+            if (intersects.length > 0) {
+                const button = intersects[0].object.parent;
+                if (button.userData.isButton) {
+                    button.userData.material.color.setHex(0x64b5f6);
+                }
+            }
+        });
+
+        window.addEventListener('click', (event) => {
+            // Update the picking ray with the camera and mouse position
+            mouseRaycaster.setFromCamera(mouse, camera);
+
+            // Calculate objects intersecting the picking ray
+            const intersects = mouseRaycaster.intersectObjects(
+                buttons.map(button => button.children[0]),
+                true
+            );
+
+            if (intersects.length > 0) {
+                const button = intersects[0].object.parent;
+                if (button.userData.isButton) {
+                    console.log('Button clicked!');
+                    button.userData.onClick();
+                    
+                    // Visual feedback for click
+                    button.userData.material.color.setHex(0x2196f3);
+                    setTimeout(() => {
+                        button.userData.material.color.setHex(button.userData.originalColor);
+                    }, 200);
+                }
+            }
+        });
     </script>
 </body>
 </html>

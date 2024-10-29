@@ -38,7 +38,7 @@ status_bar_color = (0, 0, 0)
 curvature = 30
 
 # Initialize the video capture
-cap = cv2.VideoCapture('fpv.mp4')  # 0 for the default camera
+cap = cv2.VideoCapture(0)  # 0 for the default camera
 cap.set(3, 1280)  # CV_CAP_PROP_FRAME_WIDTH
 cap.set(4, 720)   # CV_CAP_PROP_FRAME_HEIGHT
 
