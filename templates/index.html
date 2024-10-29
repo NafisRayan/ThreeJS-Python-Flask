@@ -441,192 +441,21 @@ fontLoader.load('assets/fonts/helvetiker_bold.typeface.json', (font) => {
           scene.add(rightHand);
         }
 
-        // Create floating HUD panels
-        const hudGeometry = new THREE.PlaneGeometry(8, 4);
-        const hudMaterial = new THREE.MeshStandardMaterial({
-            color: 0x00ff00,
-            metalness: 0.3,
-            roughness: 0.4,
-            transparent: true,
-            opacity: 0.2
-        });
-
-        // Left HUD panel
-        const leftHUD = new THREE.Mesh(hudGeometry, hudMaterial);
-        leftHUD.position.set(-8, 0, -10);
-        leftHUD.rotation.y = Math.PI * 0.1; // Slight angle
-        scene.add(leftHUD);
-
-        // Right HUD panel
-        const rightHUD = new THREE.Mesh(hudGeometry, hudMaterial);
-        rightHUD.position.set(8, 0, -10);
-        rightHUD.rotation.y = -Math.PI * 0.1; // Slight angle
-        scene.add(rightHUD);
-
-        // Create circular radar effect
-        const radarGeometry = new THREE.RingGeometry(2, 2.1, 32);
-        const radarMaterial = new THREE.MeshBasicMaterial({
-            color: 0x00ff00,
-            transparent: true,
-            opacity: 0.5
-        });
-        const radar = new THREE.Mesh(radarGeometry, radarMaterial);
-        radar.position.set(-8, 0, -10);
-        radar.rotation.x = -Math.PI * 0.5;
-        scene.add(radar);
-
-        // Add scanning line animation
-        const scanLineGeometry = new THREE.PlaneGeometry(4, 0.05);
-        const scanLineMaterial = new THREE.MeshBasicMaterial({
-            color: 0x00ff00,
-            transparent: true,
-            opacity: 0.7
-        });
-        const scanLine = new THREE.Mesh(scanLineGeometry, scanLineMaterial);
-        scanLine.position.set(0, 3, -10);
-        scene.add(scanLine);
-
-        // Animate scan line
-        let scanDirection = 1;
-        function animateScanLine() {
-            scanLine.position.y += 0.05 * scanDirection;
-            if (scanLine.position.y > 4 || scanLine.position.y < -4) {
-                scanDirection *= -1;
-            }
-        }
-
-        // Create a circular arc reactor effect
-        const arcReactorGeometry = new THREE.RingGeometry(1.5, 1.6, 32);
-        const arcReactorMaterial = new THREE.MeshBasicMaterial({
-            color: 0x00ffff,
-            transparent: true,
-            opacity: 0.8
-        });
-        const arcReactor = new THREE.Mesh(arcReactorGeometry, arcReactorMaterial);
-        arcReactor.position.set(-8, 0, -10);
-        scene.add(arcReactor);
-
-        // Inner ring for arc reactor
-        const innerRingGeometry = new THREE.RingGeometry(0.8, 0.9, 32);
-        const innerRing = new THREE.Mesh(innerRingGeometry, arcReactorMaterial);
-        innerRing.position.copy(arcReactor.position);
-        scene.add(innerRing);
-
-        // Create holographic panels with Stark Industries style
-        const panelGeometry = new THREE.PlaneGeometry(12, 6);
-        const panelMaterial = new THREE.MeshStandardMaterial({
-            color: 0x00ffff,
-            metalness: 0.8,
-            roughness: 0.2,
-            transparent: true,
-            opacity: 0.15
-        });
-
-        // Main HUD panel
-        const mainHUD = new THREE.Mesh(panelGeometry, panelMaterial);
-        mainHUD.position.set(0, 2, -15);
-        mainHUD.rotation.x = -Math.PI * 0.1;
-        scene.add(mainHUD);
-
-        // Side panels with angular design
-        const leftPanel = new THREE.Mesh(
-            new THREE.PlaneGeometry(6, 8),
-            panelMaterial.clone()
-        );
-        leftPanel.position.set(-10, 0, -12);
-        leftPanel.rotation.y = Math.PI * 0.2;
-        scene.add(leftPanel);
-
-        const rightPanel = new THREE.Mesh(
-            new THREE.PlaneGeometry(6, 8),
-            panelMaterial.clone()
-        );
-        rightPanel.position.set(10, 0, -12);
-        rightPanel.rotation.y = -Math.PI * 0.2;
-        scene.add(rightPanel);
-
-        // Create targeting reticle
-        const reticleGeometry = new THREE.RingGeometry(0.5, 0.6, 32);
-        const reticleMaterial = new THREE.MeshBasicMaterial({
-            color: 0xff0000,
-            transparent: true,
-            opacity: 0.6
-        });
-        const reticle = new THREE.Mesh(reticleGeometry, reticleMaterial);
-        reticle.position.set(0, 0, -10);
-        scene.add(reticle);
-
-        // Add dynamic status bars
-        const createStatusBar = (width, height, position, color) => {
-            const barGeometry = new THREE.PlaneGeometry(width, height);
-            const barMaterial = new THREE.MeshBasicMaterial({
-                color: color,
-                transparent: true,
-                opacity: 0.8
-            });
-            const bar = new THREE.Mesh(barGeometry, barMaterial);
-            bar.position.copy(position);
-            return bar;
-        };
-
-        // Create multiple status bars
-        const healthBar = createStatusBar(4, 0.3, new THREE.Vector3(-8, 3, -10), 0xff3333);
-        const energyBar = createStatusBar(4, 0.3, new THREE.Vector3(-8, 2.5, -10), 0x33ff33);
-        const shieldBar = createStatusBar(4, 0.3, new THREE.Vector3(-8, 2, -10), 0x3333ff);
-        scene.add(healthBar, energyBar, shieldBar);
-
-        // Add hexagonal grid pattern
-        const createHexGrid = () => {
-            const gridGeometry = new THREE.PlaneGeometry(20, 10);
-            const gridMaterial = new THREE.MeshBasicMaterial({
-                color: 0x00ffff,
-                transparent: true,
-                opacity: 0.1,
-                wireframe: true
-            });
-            const grid = new THREE.Mesh(gridGeometry, gridMaterial);
-            grid.position.set(0, 0, -20);
-            return grid;
-        };
-        scene.add(createHexGrid());
-
-        // Animate elements
-        function animateHUD() {
-            // Pulse arc reactor
-            arcReactor.scale.x = 1 + Math.sin(Date.now() * 0.003) * 0.1;
-            arcReactor.scale.y = arcReactor.scale.x;
-            innerRing.scale.x = 1 + Math.cos(Date.now() * 0.003) * 0.1;
-            innerRing.scale.y = innerRing.scale.x;
-
-            // Rotate reticle
-            reticle.rotation.z += 0.01;
-
-            // Animate status bars
-            healthBar.scale.x = 0.5 + Math.sin(Date.now() * 0.001) * 0.5;
-            energyBar.scale.x = 0.5 + Math.cos(Date.now() * 0.002) * 0.5;
-            shieldBar.scale.x = 0.5 + Math.sin(Date.now() * 0.003) * 0.5;
-        }
-
-        // Update your existing animate function
         function animate() {
-            renderer.setAnimationLoop(() => {
-                moveCamera();
-                controls.update();
-                animateHUD();
-                animateScanLine();
-                
-                // Rotate radar for scanning effect
-                radar.rotation.z += 0.01;
+          renderer.setAnimationLoop(() => {
+            moveCamera();
+            controls.update();
 
-                // Update animations for each model
-                models.forEach((model) => {
-                    if (model && model.mixer) {
-                        model.mixer.update(0.016);
-                    }
-                });
-
-                renderer.render(scene, camera);
+            // Update animations for each model
+            models.forEach((model) => {
+              if (model && model.mixer) {
+                model.mixer.update(0.016);
+              }
             });
+
+
+            renderer.render(scene, camera);
+          });
         }
 
         // Handle window resizing
