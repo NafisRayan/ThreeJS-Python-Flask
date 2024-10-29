@@ -201,12 +201,11 @@ const NavBarMaterial = new THREE.MeshStandardMaterial({
     opacity: 0.3
 });
 const NavBar = new THREE.Mesh(NavBarGeometry, NavBarMaterial);
-// Remove fixed position - will be updated in animate loop
+NavBar.position.set(0, 11+yp, -20);
 scene.add(NavBar);
 
 // Load font
 const fontLoader = new THREE.FontLoader();
-let statusText; // Declare statusText globally
 fontLoader.load('assets/fonts/helvetiker_bold.typeface.json', (font) => {
     // Get current date and time
     const now = new Date();
@@ -227,8 +226,11 @@ fontLoader.load('assets/fonts/helvetiker_bold.typeface.json', (font) => {
     const textMaterial = new THREE.MeshBasicMaterial({ color: 'black' });
 
     // Create text mesh
-    statusText = new THREE.Mesh(textGeometry, textMaterial);
-    scene.add(statusText);
+    const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+    textMesh.position.set(13, 10.57+yp, -20); // Centered horizontally
+
+    // Add text mesh to scene
+    scene.add(textMesh);
 });
 
 
@@ -325,30 +327,6 @@ fontLoader.load('assets/fonts/helvetiker_bold.typeface.json', (font) => {
           renderer.setAnimationLoop((timestamp, frame) => {
             moveCamera();
             controls.update();
-
-            const distance = 20; // Distance from camera
-            const heightOffset = 13; // Height offset for top position
-            const menuStartX = -29; // Start menu items from far left of status bar
-            const menuSpacing = 4; // Space between menu items
-
-            // Update NavBar position relative to camera
-            NavBar.position.copy(camera.position)
-                .add(new THREE.Vector3(0, heightOffset, -distance).applyQuaternion(camera.quaternion));
-            NavBar.quaternion.copy(camera.quaternion);
-
-            // Update status text position (right side)
-            if (statusText) {
-                statusText.position.copy(camera.position)
-                    .add(new THREE.Vector3(13, heightOffset - 0.43, -distance).applyQuaternion(camera.quaternion));
-                statusText.quaternion.copy(camera.quaternion);
-            }
-
-            // Update menu items positions (starting from far left)
-            menuButtons.forEach((button, index) => {
-                button.position.copy(camera.position)
-                    .add(new THREE.Vector3(menuStartX + (index * menuSpacing), heightOffset, -distance).applyQuaternion(camera.quaternion));
-                button.quaternion.copy(camera.quaternion);
-            });
 
             // Update animations for each model
             models.forEach((model) => {
@@ -450,40 +428,58 @@ fontLoader.load('assets/fonts/helvetiker_bold.typeface.json', (font) => {
             return buttonGroup;
         }
 
-        // Add this near the top of your script, with other global declarations
-        const menuButtons = []; // Array to store menu buttons
+        // Create a menu system to hold buttons
+        const menuButtons = [];
+        let menuVisible = false;
 
-        // Create the menu items (positioned horizontally on status bar)
+        // Create the main menu button (adjusted position to match status bar)
+        function createMenuButton() {
+            const menuButton = createButton("Menu", new THREE.Vector3(-25, 11+yp, -20), () => {
+                toggleMenu();
+            });
+            
+            // Make menu button always visible
+            menuButton.visible = true;
+            return menuButton;
+        }
+
+        // Create the menu items (adjusted positions relative to menu button)
         function createMenuItems() {
             const buttons = [
-                createButton("Video", new THREE.Vector3(0, 0, 0), () => {
+                createButton("Video", new THREE.Vector3(-25, 8+yp, -20), () => {
                     const videoBackground = document.getElementById('video-background');
                     videoBackground.style.display = (videoBackground.style.display === 'none') ? 'block' : 'none';
                 }),
-                createButton("Map", new THREE.Vector3(0, 0, 0), () => {
+                createButton("Map", new THREE.Vector3(-25, 6+yp, -20), () => {
                     const mapIframe = document.getElementById('mapIframe');
                     mapIframe.style.display = (mapIframe.style.display === 'none') ? 'block' : 'none';
                 }),
-                createButton("Chat", new THREE.Vector3(0, 0, 0), () => {
+                createButton("Chat", new THREE.Vector3(-25, 4+yp, -20), () => {
                     const chatIframe = document.getElementById('chatIframe');
                     chatIframe.style.display = (chatIframe.style.display === 'none') ? 'block' : 'none';
                 })
             ];
             
-            // Make all buttons visible
+            // Hide all menu items initially
             buttons.forEach(button => {
-                button.visible = true;
+                button.visible = false;
                 menuButtons.push(button);
             });
             
             return buttons;
         }
 
-        // Create menu items immediately after declaration
-        const menuItems = createMenuItems();
+        // Toggle menu visibility
+        function toggleMenu() {
+            menuVisible = !menuVisible;
+            menuButtons.forEach(button => {
+                button.visible = menuVisible;
+            });
+        }
 
-        // Remove menu button and toggle functionality since we don't need it anymore
-        let menuVisible = true; // Always visible now
+        // Create all buttons
+        const menuButton = createMenuButton();
+        const menuItems = createMenuItems();
 
         // Modify the checkXRButtonIntersections function to handle all buttons
         function checkXRButtonIntersections() {
@@ -500,7 +496,7 @@ fontLoader.load('assets/fonts/helvetiker_bold.typeface.json', (font) => {
                 raycaster.set(indexTip.position, fingerDirection);
                 
                 // Check intersections with visible buttons only
-                const visibleButtons = [...menuItems].filter(button => button.visible);
+                const visibleButtons = [menuButton, ...menuButtons].filter(button => button.visible);
                 const intersects = raycaster.intersectObjects(
                     visibleButtons.map(button => button.children[0]),
                     true
