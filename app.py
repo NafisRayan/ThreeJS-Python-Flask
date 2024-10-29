@@ -147,4 +147,4 @@ def serve_assets(path):
         return send_file(os.path.join('assets', path), mimetype='application/octet-stream')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

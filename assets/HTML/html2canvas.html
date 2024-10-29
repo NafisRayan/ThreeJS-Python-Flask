@@ -1,0 +1,70 @@
+<!-- // make a html tailwind threejs code to use html source as texture on 3d cube -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Texture on 3D Cube</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+    <div id="htmlContent" class="bg-white p-6 rounded-lg shadow-md w-64 h-64">
+        <h1 class="text-2xl font-bold text-gray-800 mb-4">Paramount Furniture</h1>
+        <p class="text-gray-600">Experience comfort and style with our premium furniture collection.</p>
+    </div>
+
+    <div id="canvasContainer" class="absolute top-0 left-0 w-full h-full"></div>
+
+    <script>
+        let scene, camera, renderer, cube;
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('canvasContainer').appendChild(renderer.domElement);
+
+            const geometry = new THREE.BoxGeometry(2, 2, 2);
+
+            html2canvas(document.getElementById('htmlContent')).then(canvas => {
+                const texture = new THREE.CanvasTexture(canvas);
+                const materials = [
+                    new THREE.MeshBasicMaterial({ map: texture }),
+                    new THREE.MeshBasicMaterial({ map: texture }),
+                    new THREE.MeshBasicMaterial({ map: texture }),
+                    new THREE.MeshBasicMaterial({ map: texture }),
+                    new THREE.MeshBasicMaterial({ map: texture }),
+                    new THREE.MeshBasicMaterial({ map: texture })
+                ];
+                cube = new THREE.Mesh(geometry, materials);
+                scene.add(cube);
+
+                // Start animation after cube is created
+                animate();
+            });
+
+            camera.position.z = 5;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (cube) {
+                cube.rotation.x += 0.01;
+                cube.rotation.y += 0.01;
+            }
+            renderer.render(scene, camera);
+        }
+
+        init();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
