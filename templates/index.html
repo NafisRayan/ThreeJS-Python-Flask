@@ -50,6 +50,15 @@
         // Create a new Three.js scene
         const scene = new THREE.Scene();
 
+        // // Add floor
+        // const floorGeometry = new THREE.PlaneGeometry(10000, 40000);
+        // const floorMaterial = new THREE.MeshPhongMaterial({ color: 0x222222 });
+        // const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        // floor.position.set(0, 0, 0);
+        // floor.rotation.x = -Math.PI / 2;
+        // floor.receiveShadow = true;
+        // scene.add(floor);
+
         // Set up a Perspective Camera with field of view, aspect ratio, and clipping planes
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.set(0, 0, 0); // Set the camera's position
@@ -79,12 +88,12 @@
 
           { folder: 'squid_game', scale: [.1, .1, .1], position: [23, -10, -20], rotation: [0, 5.5, 0], animation: false },
           // { folder: 'metal_gear_rising_murasama', scale: [7, 7, 7], position: [22, -7, -20], rotation: [0, 10.2, 0], animation: false },
-          // { folder: 'flat', scale: [30, 30, 30], position: [0, 0, 500], rotation: [0, 0, 0], animation: false },
+          { folder: 'flat', scale: [30, 30, 30], position: [0, 0, 0], rotation: [0, 0, 0], animation: false },
 
         ];
 
         let models = []; // Array to store loaded models
-
+ // { folder: 'flat', scale: [30, 30, 30], position: [0, 0, 500], rotation: [0, 0, 0], animation: false },
         // Load multiple .gltf models using GLTFLoader
         const loader = new GLTFLoader();
         modelsFolders.forEach((modelData) => {
@@ -459,6 +468,8 @@ fontLoader.load('assets/fonts/helvetiker_bold.typeface.json', (font) => {
                 createButton("Video", new THREE.Vector3(0, 0, 0), () => {
                     const videoBackground = document.getElementById('video-background');
                     videoBackground.style.display = (videoBackground.style.display === 'none') ? 'block' : 'none';
+                    // Add black background when video is hidden
+                    document.body.style.backgroundColor = (videoBackground.style.display === 'none') ? 'black' : 'transparent';
                 }),
                 createButton("Map", new THREE.Vector3(0, 0, 0), () => {
                     const mapIframe = document.getElementById('mapIframe');
