@@ -15,6 +15,12 @@ This project combines Three.js, Python, and Flask to create an interactive 3D we
 
 This repository showcases an innovative integration of Three.js for 3D visualization, Python for backend processing, and Flask for creating a web application. The project demonstrates how to combine these technologies to build an interactive environment with real-time object detection capabilities.
 
+## Screenshots  
+
+Here are some screenshots of the app showcasing its key features and design:  
+
+<img src="threejsDemoOld.png" alt="Home Screen" width="1000" />  
+
 ### Features
 
 - Interactive 3D scene rendered using Three.js
