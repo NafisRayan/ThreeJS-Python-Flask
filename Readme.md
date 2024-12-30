@@ -19,7 +19,7 @@ This repository showcases an innovative integration of Three.js for 3D visualiza
 
 Here are some screenshots of the app showcasing its key features and design:  
 
-<img src="threejsDemoOld.png" alt="Home Screen" width="1000" />  
+<img src="threejsDemo.png" alt="Home Screen" width="1000" />  
 
 ### Features
 
